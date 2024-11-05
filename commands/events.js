@@ -8,7 +8,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('schedule')
-                .setDescription('Schedule the community event.')
+                .setDescription('Schedule the community event. It will automatically start at the designated time.')
                 .addStringOption(option =>
                     option
                         .setName('game_url')
@@ -30,23 +30,6 @@ module.exports = {
                     option
                         .setName('comment')
                         .setDescription('Optional comment about the upcoming event.')
-                )
-        )
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('start')
-                .setDescription('Start the scheduled event.')
-                .addStringOption(option =>
-                    option
-                        .setName('event_id')
-                        .setDescription('ID of the event to be started.')
-                        .setRequired(true)
-                )
-                .addStringOption(option =>
-                    option
-                        .setName('join_method')
-                        .setDescription('A way to join you.')
-                        .setRequired(true)
                 )
         )
         .addSubcommand(subcommand =>
@@ -240,53 +223,6 @@ module.exports = {
                     await interaction.followUp({ embeds: [errorMbed] });
                     console.log(error);
                 });
-        }
-
-        else if (interaction.options.getSubcommand() === 'start') {
-            errorMbed.setTitle('Error while starting the scheduled event.');
-
-            const eventId = interaction.options.getString('event_id', true);
-            const joinMethod = interaction.options.getString('join_method', true);
-
-            try {
-                const event = await guildEventManager.fetch(eventId);
-
-                if (event.status === 1) {
-                    const mbed = new EmbedBuilder()
-                        .setColor(0x00FF00)
-                        .setTitle('Event started successfully!')
-                        .setDescription(`Successfully started the event with ID ${eventId}!`)
-                        .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
-                        .setTimestamp()
-                        .setFooter({ text: `Spy · Event ID: ${event.id}`});
-
-                    const mbed2 = new EmbedBuilder()
-                        .setColor(0x2B2D31)
-                        .setTitle(`The scheduled ${event.name} is starting now!`)
-                        .setDescription(`The scheduled ${event.name} is starting now!\n\n**${joinMethod}**\n\n** **`)
-                        .setThumbnail(event.coverImageURL())
-                        .setTimestamp()
-                        .setFooter({ text: `Spy · Event ID: ${event.id}`});
-
-                    interaction.followUp({ embeds: [mbed] });
-
-                    const channel = interaction.client.channels.cache.find(channel => channel.name === 'event-announcements');
-
-                    channel.send({ content: `<@&1289909425368338505>`, embeds: [mbed2] });
-
-                    await event.setStatus(2);
-                } else {
-                    errorMbed.setDescription(`The specified event is outdated.`);
-
-                    interaction.followUp({ embeds: [errorMbed] });
-                }
-
-            } catch (error) {
-                errorMbed.setDescription(`${error}`);
-
-                await interaction.followUp({ embeds: [errorMbed] });
-                console.log(error);
-            }
         }
 
         else if (interaction.options.getSubcommand() === 'conclude') {
