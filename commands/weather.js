@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder, codeBlock } = require('discord.js');
-const dotenv = require('dotenv');
 const axios = require('axios');
 
 const key = process.env.KEY;
