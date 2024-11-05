@@ -225,7 +225,7 @@ module.exports = {
                 });
         }
 
-        else if (interaction.options.getSubcommand() === 'conclude') {
+        if (interaction.options.getSubcommand() === 'conclude') {
             errorMbed.setTitle('Error while concluding the scheduled event.');
 
             const eventId = interaction.options.getString('event_id', true);
