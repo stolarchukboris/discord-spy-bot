@@ -1,6 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, codeBlock } = require('discord.js');
-const { key } = require('../config.json');
+const dotenv = require('dotenv');
 const axios = require('axios');
+
+const key = process.env.KEY;
 
 module.exports = {
     data: new SlashCommandBuilder()

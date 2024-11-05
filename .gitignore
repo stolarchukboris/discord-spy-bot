@@ -3,3 +3,4 @@ node_modules
 start.cmd
 stop.cmd
 logs.cmd
+.env
