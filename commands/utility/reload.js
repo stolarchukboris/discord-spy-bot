@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const { EmbedBuilder } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
+const ownerId = process.env.OWNER_ID;
 
 module.exports = {
 	category: 'utility',
@@ -25,7 +26,7 @@ module.exports = {
 		),
 
 	async execute(interaction) {
-		if (interaction.user.id === '597084523338924063') {
+		if (interaction.user.id === ownerId) {
 			if (interaction.options.getSubcommand() === 'command') {
 				const commandName = interaction.options.getString('command', true).toLowerCase();
 				const command = interaction.client.commands.get(commandName);

@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const ownerId = process.env.OWNER_ID;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -17,7 +18,7 @@ module.exports = {
                 .setRequired(true)
         ),
 	async execute(interaction) {
-		if (interaction.user.id === '597084523338924063') {
+		if (interaction.user.id === ownerId) {
             const id = interaction.options.getString('channel_id', true);
             const content = interaction.options.getString('message', true);
 

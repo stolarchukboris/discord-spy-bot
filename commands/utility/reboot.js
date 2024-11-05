@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const ownerId = process.env.OWNER_ID;
 
 module.exports = {
     category: 'utility',
@@ -6,7 +7,7 @@ module.exports = {
         .setName('reboot')
         .setDescription('Reboot the bot and reload all components.'),
     async execute(interaction) {
-        if (interaction.user.id === '597084523338924063') {
+        if (interaction.user.id === ownerId) {
             const mbed = new EmbedBuilder()
                 .setColor(0x00FF00)
                 .setTitle(`Bot is rebooting...`)
