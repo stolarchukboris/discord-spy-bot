@@ -43,7 +43,10 @@ module.exports = {
                             axios.get(`https://thumbnails.roblox.com/v1/users/avatar?userIds=${userid}&size=420x420&format=Png&isCircular=false`)
                                 .then(async function (response) {
                                     let color;
-                                    const pfpURL = response.data.data[0].imageUrl;
+
+                                    let pfpURL = response.data.data[0].imageUrl;
+                                    if (pfpURL === '') {pfpURL = 'https://t0.rbxcdn.com/180DAY-28d85295af24ad566b19c1624b313b75'}
+                                    
                                     let desc = response1.data.description;
                                     let presenceType = response2.data.userPresences[0].userPresenceType;
                                     const lastOnline = response2.data.userPresences[0].lastOnline;
