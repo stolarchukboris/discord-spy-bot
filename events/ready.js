@@ -1,10 +1,13 @@
 const { Events, EmbedBuilder, WebhookClient } = require('discord.js');
+const dotenv = require('dotenv');
+
+const whUrl = process.env.WH_URL;
 
 module.exports = {
 	name: Events.ClientReady,
 	once: true,
-	execute(client) {
-		const webhookClient = new WebhookClient({ url: "https://discord.com/api/webhooks/1276292302402355211/7eFiBnh8ilh2qn61WhEbsfWtzxyz7OhX5vY6ALjxTG-riwhpqFxo39Kqdj2ziEfBXxWf" });
+	async execute(client) {
+		const webhookClient = new WebhookClient({ url: whUrl });
 
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		client.user.setPresence({ activities: [{ name: `on 47-AK's nerves` }], status: 'dnd' });
@@ -20,5 +23,12 @@ module.exports = {
 		webhookClient.send({
 			embeds: [embed],
 		});
+
+		try {
+			const channel = await client.channels.fetch('1268223384307634263');
+			channel.messages.fetch();
+		} catch (error) {
+			console.log(error);
+		}
 	},
 };
