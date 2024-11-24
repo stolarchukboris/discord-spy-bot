@@ -2,6 +2,7 @@ const { Events, EmbedBuilder, WebhookClient } = require('discord.js');
 const dotenv = require('dotenv');
 
 const whUrl = process.env.WH_URL;
+const guildId = process.env.GUILD_ID;
 
 module.exports = {
 	name: Events.ClientReady,
@@ -23,12 +24,16 @@ module.exports = {
 		webhookClient.send({
 			embeds: [embed],
 		});
-
 		try {
-			const channel = await client.channels.fetch('1268223384307634263');
-			channel.messages.fetch();
+			const guild = await client.guilds.cache.get(guildId);
+			await guild.channels.cache.each(async channel => {
+				if (channel.type === 0) {
+					const fetchedChannel = await channel.fetch(channel.id);
+					await fetchedChannel.messages.fetch();
+				}
+			});
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	},
 };
