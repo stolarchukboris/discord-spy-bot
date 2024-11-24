@@ -1,6 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 
+const key = process.env.OPEN_CLOUD_API_KEY;
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('roblox')
@@ -38,16 +40,25 @@ module.exports = {
                     ]
                 })
                 .then(async function (responsePresence) {
-                    axios.get(`https://users.roblox.com/v1/users/${userid}`)
+                    axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}`, {
+                        headers: {
+                            'x-api-key': key
+                        }
+                    })
                         .then(async function (responseUser) {
-                            axios.get(`https://thumbnails.roblox.com/v1/users/avatar?userIds=${userid}&size=420x420&format=Png&isCircular=false`)
-                                .then(async function (responseHeadshot) {
+                            axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}:generateThumbnail?shape=SQUARE`, {
+                                headers: {
+                                    'x-api-key': key
+                                }
+                            })
+                                .then(async function (responseOperation) {
+                                    const pfpURL = responseOperation.data.response.imageUri
+                                    
                                     let color;
 
-                                    let pfpURL = responseHeadshot.data.data[0].imageUrl;
                                     if (pfpURL === '') {pfpURL = 'https://t0.rbxcdn.com/180DAY-28d85295af24ad566b19c1624b313b75'}
                                     
-                                    let desc = responseUser.data.description;
+                                    let desc = responseUser.data.about;
                                     let presenceType = responsePresence.data.userPresences[0].userPresenceType;
                                     const lastOnline = responsePresence.data.userPresences[0].lastOnline;
 
@@ -67,9 +78,9 @@ module.exports = {
                                             { name: 'Username:', value: `${responseUser.data.name}`, inline: true },
                                             { name: 'ID:', value: `${responseUser.data.id}`, inline: true },
                                             { name: 'Status:', value: `${presenceType}`, inline: true },
+                                            { name: 'Is Premium:', value: `${responseUser.data.premium}`, inline: true },
                                             { name: 'Last Online:', value: `<t:${parseInt(Date.parse(new Date(lastOnline)) / 1000)}:f>`, inline: true },
-                                            { name: 'Created:', value: `<t:${parseInt(Date.parse(new Date(responseUser.data.created)) / 1000)}:f>`, inline: true },
-                                            { name: '\u200B', value: '\u200B', inline: true },
+                                            { name: 'Created:', value: `<t:${parseInt(Date.parse(responseUser.data.createTime) / 1000)}:f>`, inline: true },
                                             { name: 'Description:', value: `${desc}` }
                                         )
                                         .setTimestamp()
@@ -84,7 +95,7 @@ module.exports = {
                                     const mbed = new EmbedBuilder()
                                         .setColor(0xFF0000)
                                         .setTitle(`Error.`)
-                                        .setDescription(`Axios error: ${error}`)
+                                        .setDescription(`${error}`)
                                         .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
                                         .setTimestamp()
                                         .setFooter({ text: 'Spy' });
@@ -99,7 +110,7 @@ module.exports = {
                             const mbed = new EmbedBuilder()
                                 .setColor(0xFF0000)
                                 .setTitle(`Error.`)
-                                .setDescription(`Axios error: ${error}`)
+                                .setDescription(`${error}`)
                                 .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
                                 .setTimestamp()
                                 .setFooter({ text: 'Spy' });
@@ -114,7 +125,7 @@ module.exports = {
                     const mbed = new EmbedBuilder()
                         .setColor(0xFF0000)
                         .setTitle(`Error.`)
-                        .setDescription(`Axios error: ${error}`)
+                        .setDescription(`${error}`)
                         .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
                         .setTimestamp()
                         .setFooter({ text: 'Spy' });
