@@ -4,11 +4,11 @@ const ownerId = process.env.OWNER_ID;
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('react')
-		.setDescription('React to a certain message.')
+		.setDescription('React to a certain message. Please run the command in the same channel as the desired message.')
         .addStringOption(option =>
             option
                 .setName('message_id')
-                .setDescription('ID of the message you want to react to. NOTE: please run the command in the same channel as the desired message.')
+                .setDescription('ID of the message you want to react to.')
                 .setRequired(true)
         )
         .addStringOption(option =>
@@ -24,7 +24,7 @@ module.exports = {
 
             const message = interaction.channel.messages.cache.get(id);
             
-            message.react(reaction);
+            await message.react(reaction);
             await interaction.reply({ content: 'Reacted!', ephemeral: true })
         } else {
             const mbed = new EmbedBuilder()
