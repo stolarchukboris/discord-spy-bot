@@ -8,7 +8,7 @@ module.exports = {
         .addStringOption(option =>
             option
                 .setName('message_id')
-                .setDescription('ID of the message you want to react to.')
+                .setDescription('ID of the message you want to react to. NOTE: please run the command in the same channel as the desired message.')
                 .setRequired(true)
         )
         .addStringOption(option =>
