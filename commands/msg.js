@@ -23,7 +23,9 @@ module.exports = {
             const content = interaction.options.getString('message', true);
 
             const channel = interaction.client.channels.cache.get(id);
+            
             channel.send(content);
+            await interaction.reply({ content: 'Sent!', ephemeral: true })
         } else {
             const mbed = new EmbedBuilder()
                 .setColor(0xFF0000)
