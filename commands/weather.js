@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, codeBlock } = require('discord.js');
 const axios = require('axios');
 
-const key = process.env.KEY;
+const key = process.env.WEATHERSTACK_API_KEY;
 
 module.exports = {
     data: new SlashCommandBuilder()

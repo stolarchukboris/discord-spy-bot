@@ -78,7 +78,7 @@ module.exports = {
 			} else if (interaction.options.getSubcommand() === 'cmds') {
 				const commands = [];
 				// Grab all the command folders from the commands directory you created earlier
-				const foldersPath = 'D:/Program Files/discord_stuff/disco_bot/commands';
+				const foldersPath = 'D:/Program Files/discord_stuff/discord-spy-bot/commands';
 				const mainFiles = fs.readdirSync(foldersPath);
 				const utilsFolder = path.join(foldersPath, 'utility');
 				const utils = fs.readdirSync(utilsFolder);
