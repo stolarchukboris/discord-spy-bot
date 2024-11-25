@@ -77,8 +77,8 @@ module.exports = {
                                         .addFields(
                                             { name: 'Username:', value: `${responseUser.data.name}`, inline: true },
                                             { name: 'ID:', value: `${responseUser.data.id}`, inline: true },
-                                            { name: 'Status:', value: `${presenceType}`, inline: true },
                                             { name: 'Is Premium:', value: `${responseUser.data.premium}`, inline: true },
+                                            { name: 'Status:', value: `${presenceType}`, inline: true },
                                             { name: 'Last Online:', value: `<t:${parseInt(Date.parse(new Date(lastOnline)) / 1000)}:f>`, inline: true },
                                             { name: 'Created:', value: `<t:${parseInt(Date.parse(responseUser.data.createTime) / 1000)}:f>`, inline: true },
                                             { name: 'Description:', value: `${desc}` }
