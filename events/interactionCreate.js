@@ -1,4 +1,4 @@
-const { Events } = require('discord.js');
+const { Events, EmbedBuilder } = require('discord.js');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -12,14 +12,25 @@ module.exports = {
 			return;
 		}
 
+		const embed = new EmbedBuilder()
+			.setColor(0xFF0000)
+			.setTitle('Error.')
+			.setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
+			.setTimestamp()
+			.setFooter({ text: 'Spy' });
+
 		try {
 			await command.execute(interaction);
 		} catch (error) {
 			console.error(error);
 			if (interaction.replied || interaction.deferred) {
-				await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+				embed.setDescription(`An error has occured while executing this command.\n${error}`);
+
+				await interaction.followUp({ embeds: [embed], ephemeral: true });
 			} else {
-				await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+				embed.setDescription(`An error has occured while executing this command.\n${error}`);
+				
+				await interaction.reply({ embeds: [embed], ephemeral: true });
 			}
 		}
 	},
