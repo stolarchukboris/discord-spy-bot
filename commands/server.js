@@ -1,10 +1,9 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('server')
-		.setDescription('Provides information about the server.'),
+		.setDescription('Provides information about this server.'),
 	async execute(interaction) {
 		const mbed = new EmbedBuilder()
             .setColor(0xAAAAFF)
@@ -12,13 +11,17 @@ module.exports = {
             .setDescription('Get information about the server.')
             .setThumbnail(`${await interaction.guild.iconURL()}`)
 			.addFields(
-				{name: 'Server name:', value: `${interaction.guild.name}`, inline: true},
-				{name: 'Server owner:', value: `<@${interaction.guild.ownerId}>`, inline: true},
-				{name: 'Member count:', value: `${interaction.guild.memberCount}`}
+				{ name: 'Server name:', value: `${interaction.guild.name}`, inline: true },
+				{ name: 'Server owner:', value: `<@${interaction.guild.ownerId}>`, inline: true },
+				{ name: 'Created:', value: `<t:${Math.round(interaction.guild.createdTimestamp / 1000)}:f>`, inline: true },
+				{ name: 'Member count:', value: `${interaction.guild.memberCount}`, inline: true },
+				{ name: 'Server boosts:', value: `${interaction.guild.premiumSubscriptionCount ?? 0}`, inline: true },
+				{ name: 'Maximum server bitrate:', value: `${interaction.guild.maximumBitrate}`, inline: true },
+				{ name: 'Server description:', value: `${interaction.guild.description ?? 'No description provided.'}` }
 			)
             .setTimestamp()
-            .setFooter({ text: 'Spy'});
+            .setFooter({ text: 'Spy' });
 
-        await interaction.reply({embeds: [mbed]});
+        await interaction.reply({ embeds: [mbed] });
 	},
 };

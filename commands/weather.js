@@ -1,8 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, codeBlock } = require('discord.js');
 const axios = require('axios');
 
-const key = process.env.WEATHERSTACK_API_KEY;
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('weather')
@@ -27,6 +25,8 @@ module.exports = {
 
     async execute(interaction) {
         await interaction.deferReply();
+
+        const key = process.env.WEATHERSTACK_API_KEY;
 
         if (interaction.options.getSubcommand() === 'info') {
             const country = interaction.options.getString('country', true);
