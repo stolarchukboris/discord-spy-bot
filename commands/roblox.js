@@ -64,9 +64,7 @@ module.exports = {
 
                                     axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}:generateThumbnail?shape=SQUARE`, { headers: { 'x-api-key': key } })
                                         .then(async function (responseOperation) {
-                                            let desc = responseUser.data.about;
-
-                                            if (desc === '') {desc = 'No description provided.'};
+                                            const desc = responseUser.data.about || 'No description provided.';
                                             const pfpURL = responseOperation.data.response.imageUri;
                                             let color;
 
