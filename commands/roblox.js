@@ -60,9 +60,13 @@ module.exports = {
                         .then(async function (responsePresence) {
                             axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}`, { headers: { 'x-api-key': key } })
                                 .then(async function (responseUser) {
+                                    console.log(responseUser.data);
+
                                     axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}:generateThumbnail?shape=SQUARE`, { headers: { 'x-api-key': key } })
                                         .then(async function (responseOperation) {
-                                            const desc = responseUser.data.about ?? 'No description provided.';
+                                            let desc = responseUser.data.about;
+
+                                            if (desc === '') {desc = 'No description provided.'};
                                             const pfpURL = responseOperation.data.response.imageUri;
                                             let color;
 
@@ -123,7 +127,7 @@ module.exports = {
                 .catch(async error => {
                     console.error(error);
 
-                    errorEmbed.setDescription(`${error}`);
+                    errorEmbed.setDescription(`No users found or the user is banned.`);
 
                     await interaction.followUp({ embeds: [errorEmbed] });
                 })
