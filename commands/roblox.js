@@ -60,8 +60,6 @@ module.exports = {
                         .then(async function (responsePresence) {
                             axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}`, { headers: { 'x-api-key': key } })
                                 .then(async function (responseUser) {
-                                    console.log(responseUser.data);
-
                                     axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}:generateThumbnail?shape=SQUARE`, { headers: { 'x-api-key': key } })
                                         .then(async function (responseOperation) {
                                             const desc = responseUser.data.about || 'No description provided.';
