@@ -12,7 +12,7 @@ const db_config = {
 module.exports = {
     name: Events.InviteCreate,
     async execute(invite) {
-        const session = mysql.getSession(db_config)
+        await mysql.getSession(db_config)
             .then(async session => {
                 await session.sql(`select settingValue from serverLogsChannelSetting where guildId = ${invite.guild.id};`).execute()
                     .then(async result => {
@@ -28,12 +28,20 @@ module.exports = {
                             .setTitle(`A new invite link has been generated!`)
                             .setDescription(`Inviter: <@${invite.inviter.id}>\nCreated: <t:${Math.round(invite.createdTimestamp / 1000)}:f>\nExpires: ${inviteExp}\nInvite code: ${invite.code}\nInvite link: ${invite.url}`)
                             .setTimestamp()
-                            .setFooter({ text: `Spy Moderation Module` });
+                            .setFooter({ text: `Spy Moderation` });
 
                         const channel = invite.guild.channels.cache.get(logsChannelId);
 
-                        channel.send({ embeds: [embed] });
+                        await channel.send({ embeds: [embed] });
                     })
+                    .catch(async error => {
+                        console.error(error);
+
+                        return await session.close();
+                    });
             })
+            .catch(async error => {
+                console.error(error);
+            });
     },
 };

@@ -22,7 +22,8 @@ module.exports = {
                         .setName('setting')
                         .setDescription('The name of the setting to alter.')
                         .addChoices(
-                            { name: 'Server logs channel ID', value: 'serverLogsChannelSetting' }
+                            { name: 'Server logs channel ID', value: 'serverLogsChannelSetting' },
+                            { name: 'Starbord channel ID', value: 'starboardChannelSetting' }
                         )
                         .setRequired(true)
                 )
@@ -41,20 +42,20 @@ module.exports = {
             .setTitle('Error.')
             .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
             .setTimestamp()
-            .setFooter({ text: 'Spy' });
+            .setFooter({ text: 'Spy Configuration' });
 
-        const session = mysql.getSession(db_config)
+        mysql.getSession(db_config)
             .then(async session => {
                 if (interaction.options.getSubcommand() === 'alter') {
                     const setting = interaction.options.getString('setting', true);
                     const settingValue = interaction.options.getString('value', true);
 
-                    await session.sql(`insert into ${setting} values (${interaction.guild.id}, ${settingValue});`).execute()
+                    await session.sql(`insert into ${setting} values (${interaction.guild.id}, ${settingValue}) on duplicate key update settingValue = ${settingValue};`).execute()
                         .then(async _ => {
                             const embed = new EmbedBuilder()
                                 .setColor(0x00FF00)
                                 .setTitle('Setting updated.')
-                                .setDescription(`Setting ${setting} has been successfully set to ${settingValue}.`)
+                                .setDescription(`Setting \`${setting}\` has been successfully set to \`${settingValue}\`.`)
                                 .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
                                 .setTimestamp()
                                 .setFooter({ text: 'Spy Configuration' });
@@ -78,7 +79,6 @@ module.exports = {
                 errorEmbed.setDescription(`${error}`);
 
                 await interaction.followUp({ embeds: [errorEmbed] });
-                return await session.close();
             });
     },
 };
