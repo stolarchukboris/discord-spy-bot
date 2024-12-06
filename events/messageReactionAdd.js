@@ -1,30 +1,22 @@
 const { Events, EmbedBuilder, AttachmentBuilder } = require('discord.js');
-const channelId = process.env.STARS_CH_ID;
 const mysql = require('@mysql/xdevapi');
-
-const db_config = {
-	password: process.env.DB_PASS,
-    user: process.env.DB_USER,
-    host: 'localhost',
-    port: 33060,
-    schema: process.env.DB_SCHEMA
-}
+const { db_config } = require('../db_config');
 
 module.exports = {
 	name: Events.MessageReactionAdd,
 	async execute(messageReaction) {
-		if (messageReaction.emoji.name === '⭐' && messageReaction.count >= 1 && messageReaction.message.channel.name !== 'stars') {
-			const channel = messageReaction.client.channels.cache.get(channelId);
-			let desc;
+		await mysql.getSession(db_config)
+			.then(async session => {
+				if (messageReaction.emoji.name === '⭐' && messageReaction.count >= 1 && messageReaction.message.channel.name !== 'stars') {
+					const channel = messageReaction.client.channels.cache.get(channelId);
+					let desc;
 
-			if (typeof messageReaction.message.content === 'string') {
-				desc = messageReaction.message.content;
-			} else {
-				desc = '';
-			}
+					if (typeof messageReaction.message.content === 'string') {
+						desc = messageReaction.message.content;
+					} else {
+						desc = '';
+					}
 
-			mysql.getSession(db_config)
-				.then(async session => {
 					try {
 						const embed = new EmbedBuilder()
 							.setColor(0xFFAC33)
@@ -74,7 +66,7 @@ module.exports = {
 					} finally {
 						return await session.close();
 					};
-				})
-        }
-	},
+				}
+			})
+	}
 };

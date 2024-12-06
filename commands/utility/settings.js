@@ -1,12 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const mysql = require('@mysql/xdevapi');
-const db_config = {
-    password: process.env.DB_PASS,
-    user: process.env.DB_USER,
-    host: 'localhost',
-    port: 33060,
-    schema: process.env.DB_SCHEMA
-}
+const { db_config } = require('../../db_config');
 
 module.exports = {
     category: 'utility',
