@@ -8,10 +8,11 @@ module.exports = {
         .setName('about')
         .setDescription('Get information on the bot and bot host.'),
     async execute(interaction) {
-        const axiosVersion = packageJSON.dependencies["axios"];
-        const discordJSVersion = packageJSON.dependencies["discord.js"];
-        const dotenvVersion = packageJSON.dependencies["dotenv"];
-        const mysql = packageJSON.dependencies["@mysql/xdevapi"];
+        let str = ``;
+        for (const [k, v] of Object.entries(packageJSON.dependencies)) {
+            str = str.concat(`${k}: ${v}\n`);
+        }
+
         const uptime = Math.floor(process.uptime());
         const date = new Date(0);
 
@@ -25,7 +26,7 @@ module.exports = {
             .addFields(
                 { name: 'Host System', value: codeBlock('yaml', `OS: ${os.machine()} ${os.platform()}-${os.release()}\nCPU: ${os.arch()} ${os.cpus()[0].model}\nUsed RAM: ${Math.round((os.totalmem() - os.freemem()) / 1048576)} MB\nUptime: ${new Date(os.uptime() * 1000).toISOString().substring(11, 19)}`) },
                 { name: 'Bot', value: codeBlock('yaml', `Used RAM: ${Math.round(process.memoryUsage().heapUsed / 1048576)} MB\nUptime: ${uptimeStr}`), inline: true },
-                { name: 'Dependencies', value: codeBlock('yaml', `Node: ${process.version}\nDiscordJS: ${discordJSVersion}\nAxios: ${axiosVersion}\nDotenv: ${dotenvVersion}\nMySQL XDevAPI: ${mysql}`), inline: true }
+                { name: 'Dependencies', value: codeBlock('yaml', `${str}`), inline: true }
             )
             .setTimestamp()
             .setFooter({ text: 'Spy'});
