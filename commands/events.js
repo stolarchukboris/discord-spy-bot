@@ -107,468 +107,312 @@ module.exports = {
         ),
 
     async execute(interaction) {
-        const errorEmbed = new EmbedBuilder()
-            .setColor(0xFF0000)
-            .setTitle('Error.')
-            .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
-            .setTimestamp()
-            .setFooter({ text: 'Spy' });
+        await interaction.deferReply({ ephemeral: true });
 
-        mysql.getSession(db_config)
-            .then(async session => {
-                await interaction.deferReply({ ephemeral: true });
+        try {
+            const errorEmbed = new EmbedBuilder()
+                .setColor(0xFF0000)
+                .setTitle('Error.')
+                .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
+                .setTimestamp()
+                .setFooter({ text: 'Spy' });
 
-                if (interaction.options.getSubcommand() === 'schedule') {
-                    const gameUrl = interaction.options.getString('game_url', true);
-                    const time = interaction.options.getInteger('time', true);
-                    const duration = interaction.options.getString('duration') ?? 'Not specified.';
-                    const comment = interaction.options.getString('comment') ?? '';
+            await mysql.getSession(db_config)
+                .then(async session => {
+                    if (interaction.options.getSubcommand() === 'schedule') {
+                        const gameUrl = interaction.options.getString('game_url', true);
+                        const time = interaction.options.getInteger('time', true);
+                        const duration = interaction.options.getString('duration') ?? 'Not specified.';
+                        const comment = interaction.options.getString('comment') ?? '';
+                        const result = await session.sql(`select eventId from communityEvents where eventTime = ${time};`).execute();
+                        const existingEventId = result.fetchOne();
 
-                    await session.sql(`select eventId from communityEvents where eventTime = ${time};`).execute()
-                        .then(async result => {
-                            const existingEventId = result.fetchOne();
+                        if (!existingEventId) {
+                            const eventId = crypto.randomUUID();
+                            const placeid = gameUrl.split('/')[4];
+                            const gameResponse = await axios.get(`https://www.roblox.com/places/api-get-details?assetId=${placeid}`);
+                            const gameName = gameResponse.data.Name;
+                            let eventDesc;
 
-                            if (existingEventId === undefined) {
-                                const eventId = crypto.randomUUID();
-                                const placeid = gameUrl.split('/')[4];
-
-                                axios.get(`https://games.roblox.com/v1/games/${placeid}/servers/0`)
-                                    .then(async function (response) {
-                                        if (response.status !== 200) {
-                                            errorEmbed.setDescription(`Specified game doesn't exist.`);
-
-                                            await interaction.followUp({ embeds: [errorEmbed] });
-                                        }
-
-                                        axios.get(`https://www.roblox.com/places/api-get-details?assetId=${placeid}`)
-                                            .then(async function (gameResponse) {
-                                                const gameName = gameResponse.data.Name;
-                                                let eventDesc;
-
-                                                if (comment === '') {
-                                                    eventDesc = `**Event host:** <@${interaction.user.id}>\n\n**Event duration**: ${duration}.\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**React with :white_check_mark: if you're planning to attend this event.**`
-                                                } else {
-                                                    eventDesc = `**Event host:** <@${interaction.user.id}>\n\n**Event duration**: ${duration}.\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**Note from host:** ${comment}\n\n**React with :white_check_mark: if you're planning to attend this event.**`
-                                                }
-
-                                                axios.get(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeid}&returnPolicy=PlaceHolder&size=150x150&format=Webp&isCircular=false`)
-                                                    .then(async function (thumbnailResponse) {
-                                                        const gameThumbnail = thumbnailResponse.data.data[0].imageUrl;
-
-                                                        await session.sql(`insert into communityEvents(eventId, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime) values ('${eventId}', '${gameUrl}', '${gameName}', '${gameThumbnail}', ${time});`).execute();
-                                                        const clientEmbed = new EmbedBuilder()
-                                                            .setColor(0x00FF00)
-                                                            .setTitle('Event scheduled successfully.')
-                                                            .setDescription(`The community event has been scheduled successfully.\n\n**Event UUID:** ${eventId}\n**Event time:** <t:${time}:f>`)
-                                                            .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
-                                                            .setTimestamp()
-                                                            .setFooter({ text: 'Spy' });
-
-                                                        const eventEmbed = new EmbedBuilder()
-                                                            .setColor(0x2B2D31)
-                                                            .setTitle(`Event in ${gameName} has been scheduled on <t:${time}:f>!`)
-                                                            .setDescription(eventDesc)
-                                                            .setThumbnail(gameThumbnail)
-                                                            .setTimestamp()
-                                                            .setFooter({ text: `Spy | Event ID: ${eventId}` });
-
-                                                        await interaction.followUp({ embeds: [clientEmbed] });
-
-                                                        const channel = interaction.client.channels.cache.find(channel => channel.name === 'event-announcements');
-
-                                                        const sentAnns = await channel.send({ content: `<@&1289909425368338505>`, embeds: [eventEmbed] });
-                                                        await sentAnns.react('✅');
-                                                        await channel.send(gameUrl);
-
-                                                        await session.sql(`update communityEvents set annsMessageId = ${sentAnns.id} where eventId = '${eventId}';`).execute();
-                                                        return await session.close();
-                                                    })
-                                                    .catch(async error => {
-                                                        console.error(error);
-
-                                                        errorEmbed.setDescription(`${error}`);
-
-                                                        await interaction.followUp({ embeds: [errorEmbed] });
-                                                        return await session.close();
-                                                    });
-                                            })
-                                            .catch(async error => {
-                                                console.error(error);
-
-                                                errorEmbed.setDescription(`${error}`);
-
-                                                await interaction.followUp({ embeds: [errorEmbed] });
-                                                return await session.close();
-                                            });
-                                    })
-                                    .catch(async error => {
-                                        console.error(error);
-
-                                        errorEmbed.setDescription(`${error}`);
-
-                                        await interaction.followUp({ embeds: [errorEmbed] });
-                                        return await session.close();
-                                    });
+                            if (comment === '') {
+                                eventDesc = `**Event host:** <@${interaction.user.id}>\n\n**Event duration**: ${duration}.\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**React with :white_check_mark: if you're planning to attend this event.**`
                             } else {
-                                errorEmbed.setDescription(`There's already an event scheduled for this time.`);
+                                eventDesc = `**Event host:** <@${interaction.user.id}>\n\n**Event duration**: ${duration}.\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**Note from host:** ${comment}\n\n**React with :white_check_mark: if you're planning to attend this event.**`
+                            }
 
-                                await interaction.followUp({ embeds: [errorEmbed] });
-                                return await session.close();
-                            };
-                        })
-                        .catch(async error => {
-                            console.error(error);
+                            const thumbnailResponse = await axios.get(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeid}&returnPolicy=PlaceHolder&size=150x150&format=Webp&isCircular=false`);
+                            const gameThumbnail = thumbnailResponse.data.data[0].imageUrl;
 
-                            errorEmbed.setDescription(`${error}`);
+                            await session.sql(`insert into communityEvents(eventId, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime) values ('${eventId}', '${gameUrl}', '${gameName}', '${gameThumbnail}', ${time});`).execute();
+                            await interaction.followUp({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setColor(0x00FF00)
+                                        .setTitle('Event scheduled successfully.')
+                                        .setDescription(`The community event has been scheduled successfully.\n\n**Event UUID:** ${eventId}\n**Event time:** <t:${time}:f>`)
+                                        .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
+                                        .setTimestamp()
+                                        .setFooter({ text: 'Spy' })
+                                ]
+                            });
+
+                            const channel = interaction.client.channels.cache.find(channel => channel.name === 'event-announcements');
+                            const sentAnns = await channel.send({
+                                content: `<@&1289909425368338505>`,
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setColor(0x2B2D31)
+                                        .setTitle(`Event in ${gameName} has been scheduled on <t:${time}:f>!`)
+                                        .setDescription(eventDesc)
+                                        .setThumbnail(gameThumbnail)
+                                        .setTimestamp()
+                                        .setFooter({ text: `Spy | Event ID: ${eventId}` })
+                                ]
+                            });
+                            await sentAnns.react('✅');
+                            await channel.send(gameUrl);
+                            await session.sql(`update communityEvents set annsMessageId = ${sentAnns.id} where eventId = '${eventId}';`).execute();
+                            return await session.close();
+                        } else {
+                            errorEmbed.setDescription(`There's already an event scheduled for this time.`);
 
                             await interaction.followUp({ embeds: [errorEmbed] });
                             return await session.close();
-                        });
-                } else if (interaction.options.getSubcommand() === 'start') {
-                    const eventId = interaction.options.getString('event_id', true);
-                    const join = interaction.options.getString('join') ?? '';
+                        };
+                    } else if (interaction.options.getSubcommand() === 'start') {
+                        const eventId = interaction.options.getString('event_id', true);
+                        const join = interaction.options.getString('join') ?? '';
+                        const result = await session.sql(`select eventStatus from communityEvents where eventId = '${eventId}';`).execute();
+                        const status = result.fetchOne()[0];
 
-                    await session.sql(`select eventStatus from communityEvents where eventId = '${eventId}';`).execute()
-                        .then(async result => {
-                            const status = result.fetchOne()[0];
+                        if (status === 2) {
+                            errorEmbed.setDescription(`The event is already started.`);
 
-                            if (status === 2) {
-                                errorEmbed.setDescription(`The event is already started.`);
+                            await interaction.followUp({ embeds: [errorEmbed] });
+                            return await session.close();
+                        } else {
+                            await session.sql(`update communityEvents set eventStatus = 2 where eventId = '${eventId}';`).execute();
 
-                                await interaction.followUp({ embeds: [errorEmbed] });
-                                return await session.close();
-                            } else {
-                                await session.sql(`update communityEvents set eventStatus = 2 where eventId = '${eventId}';`).execute()
-                                    .then(async _ => {
-                                        const clientEmbed = new EmbedBuilder()
-                                            .setColor(0x00FF00)
-                                            .setTitle('Event started successfully.')
-                                            .setDescription('The scheduled event has been started successfully. Enjoy!')
-                                            .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
-                                            .setTimestamp()
-                                            .setFooter({ text: 'Spy' });
+                            const result = await session.sql(`select eventGameName, gameThumbnailUrl from communityEvents where eventId = '${eventId}';`).execute();
+                            const array = result.fetchOne();
+                            const gameName = array[0];
+                            const gameThumbnail = array[1];
+                            let desc;
 
-                                        await session.sql(`select eventGameName, gameThumbnailUrl from communityEvents where eventId = '${eventId}';`).execute()
-                                            .then(async result => {
-                                                const array = result.fetchOne();
-                                                const gameName = array[0];
-                                                const gameThumbnail = array[1];
-                                                let desc;
+                            if (join === '') { desc = `The scheduled event in ${gameName} is starting now.` }
+                            else { desc = `The scheduled event in ${gameName} is starting now.\n\n**Join the event:** ${join}` };
 
-                                                if (join === '') { desc = `The scheduled event in ${gameName} is starting now.` }
-                                                else { desc = `The scheduled event in ${gameName} is starting now.\n\n**Join the event:** ${join}` };
+                            await interaction.followUp({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setColor(0x00FF00)
+                                        .setTitle('Event started successfully.')
+                                        .setDescription('The scheduled event has been started successfully. Enjoy!')
+                                        .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
+                                        .setTimestamp()
+                                        .setFooter({ text: 'Spy' })
+                                ]
+                            });
 
-                                                const eventEmbed = new EmbedBuilder()
-                                                    .setColor(0x2B2D31)
-                                                    .setTitle(`The scheduled event in ${gameName} is starting now!`)
-                                                    .setDescription(desc)
-                                                    .setThumbnail(gameThumbnail)
-                                                    .setTimestamp()
-                                                    .setFooter({ text: `Spy | Event ID: ${eventId}` })
+                            const channel = interaction.client.channels.cache.find(channel => channel.name === 'event-announcements');
+                            const annsMessaageResult = await session.sql(`select annsMessageId from communityEvents where eventId = '${eventId}';`).execute();
+                            const messageId = annsMessaageResult.fetchOne()[0];
+                            const annsMessage = channel.messages.cache.get(messageId);
 
-                                                await interaction.followUp({ embeds: [clientEmbed] });
+                            await annsMessage.reply({
+                                content: `<@&1289909425368338505>`,
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setColor(0x2B2D31)
+                                        .setTitle(`The scheduled event in ${gameName} is starting now!`)
+                                        .setDescription(desc)
+                                        .setThumbnail(gameThumbnail)
+                                        .setTimestamp()
+                                        .setFooter({ text: `Spy | Event ID: ${eventId}` })
+                                ]
+                            });
 
-                                                const channel = interaction.client.channels.cache.find(channel => channel.name === 'event-announcements');
+                            return await session.close();
+                        }
+                    } else if (interaction.options.getSubcommand() === 'conclude') {
+                        const eventId = interaction.options.getString('event_id', true);
+                        const comment = interaction.options.getString('comment') ?? '';
+                        const result = await session.sql(`select eventStatus from communityEvents where eventId = '${eventId}';`).execute();
+                        const status = result.fetchOne()[0];
 
-                                                session.sql(`select annsMessageId from communityEvents where eventId = '${eventId}';`).execute()
-                                                    .then(async result => {
-                                                        const messageId = result.fetchOne()[0];
-                                                        const annsMessage = channel.messages.cache.get(messageId);
+                        if (status === 1) {
+                            errorEmbed.setDescription(`The event is not started yet.`);
 
-                                                        await annsMessage.reply({ content: `<@&1289909425368338505>`, embeds: [eventEmbed] });
+                            await interaction.followUp({ embeds: [errorEmbed] });
+                            return await session.close();
+                        } else {
+                            await session.sql(`update communityEvents set eventStatus = 3 where eventId = '${eventId}';`).execute();
 
-                                                        return await session.close();
-                                                    })
-                                                    .catch(async error => {
-                                                        console.error(error);
+                            const result = await session.sql(`select eventGameName, gameThumbnailUrl from communityEvents where eventId = '${eventId}';`).execute();
+                            const array = result.fetchOne();
+                            const gameName = array[0];
+                            const gameThumbnail = array[1];
+                            let desc;
 
-                                                        errorEmbed.setDescription(`${error}`);
+                            if (comment === '') { desc = `The scheduled event in ${gameName} has been concluded. Thank you for attending!` }
+                            else { desc = `The scheduled event in ${gameName} has been concluded. Thank you for attending!\n\n**Comment from host:** ${comment}` };
 
-                                                        await interaction.followUp({ embeds: [errorEmbed] });
-                                                        return await session.close();
-                                                    });
-                                            })
-                                            .catch(async error => {
-                                                console.error(error);
+                            await interaction.followUp({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setColor(0x00FF00)
+                                        .setTitle('Event concluded successfully.')
+                                        .setDescription('The scheduled event has been concluded successfully.')
+                                        .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
+                                        .setTimestamp()
+                                        .setFooter({ text: 'Spy' })
+                                ]
+                            });
 
-                                                errorEmbed.setDescription(`${error}`);
+                            const channel = interaction.client.channels.cache.find(channel => channel.name === 'event-announcements');
+                            const annsMessaageResult = await session.sql(`select annsMessageId from communityEvents where eventId = '${eventId}';`).execute();
+                            const messageId = annsMessaageResult.fetchOne()[0];
+                            const annsMessage = channel.messages.cache.get(messageId);
 
-                                                await interaction.followUp({ embeds: [errorEmbed] });
-                                                return await session.close();
-                                            });
-                                    })
-                                    .catch(async error => {
-                                        console.error(error);
-
-                                        errorEmbed.setDescription(`${error}`);
-
-                                        await interaction.followUp({ embeds: [errorEmbed] });
-                                        return await session.close();
-                                    });
-                            }
-                        })
-                } else if (interaction.options.getSubcommand() === 'conclude') {
-                    const eventId = interaction.options.getString('event_id', true);
-                    const comment = interaction.options.getString('comment') ?? '';
-
-                    await session.sql(`update communityEvents set eventStatus = 3 where eventId = '${eventId}';`).execute()
-                        .then(async _ => {
-                            const clientEmbed = new EmbedBuilder()
-                                .setColor(0x00FF00)
-                                .setTitle('Event concluded successfully.')
-                                .setDescription('The scheduled event has been concluded successfully.')
-                                .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
-                                .setTimestamp()
-                                .setFooter({ text: 'Spy' });
-
-                            await session.sql(`select eventGameName, gameThumbnailUrl from communityEvents where eventId = '${eventId}';`).execute()
-                                .then(async result => {
-                                    const array = result.fetchOne();
-                                    const gameName = array[0];
-                                    const gameThumbnail = array[1];
-                                    let desc;
-
-                                    if (comment === '') { desc = `The scheduled event in ${gameName} has been concluded. Thank you for attending!` }
-                                    else { desc = `The scheduled event in ${gameName} has been concluded. Thank you for attending!\n\n**Comment from host:** ${comment}` };
-
-                                    const eventEmbed = new EmbedBuilder()
+                            await annsMessage.reply({
+                                embeds: [
+                                    new EmbedBuilder()
                                         .setColor(0x2B2D31)
                                         .setTitle(`The scheduled event in ${gameName} has been concluded.`)
                                         .setDescription(desc)
                                         .setThumbnail(gameThumbnail)
                                         .setTimestamp()
                                         .setFooter({ text: `Spy` })
+                                ]
+                            });
 
-                                    await interaction.followUp({ embeds: [clientEmbed] });
+                            await session.sql(`delete from communityEvents where eventId = '${eventId}';`).execute();
+                            return await session.close();
+                        }
+                    } else if (interaction.options.getSubcommand() === 'cancel') {
+                        const eventId = interaction.options.getString('event_id', true);
+                        const reason = interaction.options.getString('reason', true);
 
-                                    const channel = interaction.client.channels.cache.find(channel => channel.name === 'event-announcements');
+                        await session.sql(`update communityEvents set eventStatus = 0 where eventId = '${eventId}';`).execute();
 
-                                    session.sql(`select annsMessageId from communityEvents where eventId = '${eventId}';`).execute()
-                                        .then(async result => {
-                                            const messageId = result.fetchOne()[0];
-                                            const annsMessage = channel.messages.cache.get(messageId);
+                        const result = await session.sql(`select eventGameName, gameThumbnailUrl from communityEvents where eventId = '${eventId}';`).execute();
+                        const array = result.fetchOne();
+                        const gameName = array[0];
+                        const gameThumbnail = array[1];
 
-                                            await annsMessage.reply({ embeds: [eventEmbed] });
+                        await interaction.followUp({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setColor(0x00FF00)
+                                    .setTitle('Event cancelled successfully.')
+                                    .setDescription('The scheduled event has been cancelled and deleted successfully.')
+                                    .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
+                                    .setTimestamp()
+                                    .setFooter({ text: 'Spy' })
+                            ]
+                        });
 
-                                            await session.sql(`delete from communityEvents where eventId = '${eventId}';`).execute();
-                                            return await session.close();
-                                        })
-                                        .catch(async error => {
-                                            console.error(error);
+                        const channel = interaction.client.channels.cache.find(channel => channel.name === 'event-announcements');
+                        const annsMessaageResult = await session.sql(`select annsMessageId from communityEvents where eventId = '${eventId}';`).execute();
+                        const messageId = annsMessaageResult.fetchOne()[0];
+                        const prevAnnsMessage = channel.messages.cache.get(messageId);
 
-                                            errorEmbed.setDescription(`${error}`);
+                        await prevAnnsMessage.reply({
+                            content: `<@&1289909425368338505>`,
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setColor(0x2B2D31)
+                                    .setTitle(`The scheduled event in ${gameName} has been cancelled.`)
+                                    .setDescription(`The scheduled event in ${gameName} has been cancelled.\n\n**Reason:** ${reason}\n\nSorry for the inconvenience!`)
+                                    .setThumbnail(gameThumbnail)
+                                    .setTimestamp()
+                                    .setFooter({ text: `Spy` })
+                            ]
+                        });
 
-                                            await interaction.followUp({ embeds: [errorEmbed] });
-                                            return await session.close();
-                                        });
-                                })
-                                .catch(async error => {
-                                    console.error(error);
+                        await session.sql(`delete from communityEvents where eventId = '${eventId}';`).execute();
+                        return await session.close();
+                    } else if (interaction.options.getSubcommandGroup() === 'update') {
+                        const eventId = interaction.options.getString('event_id', true);
+                        const result = await session.sql(`select eventStatus from communityEvents where eventId = '${eventId}';`).execute();
+                        const status = result.fetchOne()[0];
 
-                                    errorEmbed.setDescription(`${error}`);
-
-                                    await interaction.followUp({ embeds: [errorEmbed] });
-                                    return await session.close();
-                                });
-                        })
-                        .catch(async error => {
-                            console.error(error);
-
-                            errorEmbed.setDescription(`${error}`);
+                        if (status !== 1) {
+                            errorEmbed.setDescription(`You can only update the scheduled event.`);
 
                             await interaction.followUp({ embeds: [errorEmbed] });
                             return await session.close();
-                        });
-                } else if (interaction.options.getSubcommand() === 'cancel') {
-                    const eventId = interaction.options.getString('event_id', true);
-                    const reason = interaction.options.getString('reason', true);
+                        } else {
+                            if (interaction.options.getSubcommand() === 'time') {
+                                const time = interaction.options.getInteger('new_time', true);
+                                const result = await session.sql(`select eventTime from communityEvents where eventId = '${eventId}';`).execute();
+                                const oldTime = result.fetchOne()[0];
 
-                    await session.sql(`update communityEvents set eventStatus = 0 where eventId = '${eventId}';`).execute()
-                        .then(async _ => {
-                            const clientEmbed = new EmbedBuilder()
-                                .setColor(0x00FF00)
-                                .setTitle('Event cancelled successfully.')
-                                .setDescription('The scheduled event has been cancelled and deleted successfully.')
-                                .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
-                                .setTimestamp()
-                                .setFooter({ text: 'Spy' });
+                                if (oldTime === time) {
+                                    errorEmbed.setDescription(`New time cannot be the same as the old time.`);
 
-                            await session.sql(`select eventGameName, gameThumbnailUrl from communityEvents where eventId = '${eventId}';`).execute()
-                                .then(async result => {
+                                    await interaction.followUp({ embeds: [errorEmbed] });
+                                    return await session.close();
+                                } else {
+                                    await session.sql(`update communityEvents set eventTime = ${time} where eventId = '${eventId}';`).execute();
+
+                                    const result = await session.sql(`select eventGameName, gameThumbnailUrl from communityEvents where eventId = '${eventId}';`).execute();
                                     const array = result.fetchOne();
                                     const gameName = array[0];
                                     const gameThumbnail = array[1];
 
-                                    const eventEmbed = new EmbedBuilder()
-                                        .setColor(0x2B2D31)
-                                        .setTitle(`The scheduled event in ${gameName} has been cancelled.`)
-                                        .setDescription(`The scheduled event in ${gameName} has been cancelled.\n\n**Reason:** ${reason}\n\nSorry for the inconvenience!`)
-                                        .setThumbnail(gameThumbnail)
-                                        .setTimestamp()
-                                        .setFooter({ text: `Spy` })
-
-                                    await interaction.followUp({ embeds: [clientEmbed] });
+                                    await interaction.followUp({
+                                        embeds: [
+                                            new EmbedBuilder()
+                                                .setColor(0x00FF00)
+                                                .setTitle('Event rescheduled successfully.')
+                                                .setDescription(`The scheduled event has been rescheduled successfully.\n\n**New time:** <t:${time}:f>`)
+                                                .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
+                                                .setTimestamp()
+                                                .setFooter({ text: 'Spy' })
+                                        ]
+                                    });
 
                                     const channel = interaction.client.channels.cache.find(channel => channel.name === 'event-announcements');
 
-                                    session.sql(`select annsMessageId from communityEvents where eventId = '${eventId}';`).execute()
-                                        .then(async result => {
-                                            const messageId = result.fetchOne()[0];
-                                            const prevAnnsMessage = channel.messages.cache.get(messageId);
-                                            await prevAnnsMessage.reply({ content: `<@&1289909425368338505>`, embeds: [eventEmbed] });
+                                    const annsMessaageResult = await session.sql(`select annsMessageId from communityEvents where eventId = '${eventId}';`).execute();
+                                    const messageId = annsMessaageResult.fetchOne()[0];
+                                    const annsMessage = channel.messages.cache.get(messageId);
+                                    const newMessage = await annsMessage.reply({
+                                        content: `<@&1289909425368338505>`,
+                                        embeds: [
+                                            new EmbedBuilder()
+                                                .setColor(0x2B2D31)
+                                                .setTitle(`The scheduled event in ${gameName} has been rescheduled.`)
+                                                .setDescription(`The scheduled event in ${gameName} has been rescheduled.\n\n## New time: <t:${time}:f>\n\n**React with :white_check_mark: if you are still able to attend.**`)
+                                                .setThumbnail(gameThumbnail)
+                                                .setTimestamp()
+                                                .setFooter({ text: `Spy | Event ID: ${eventId}` })
+                                        ]
+                                    });
 
-                                            await session.sql(`delete from communityEvents where eventId = '${eventId}';`).execute();
-                                            return await session.close();
-                                        })
-                                        .catch(async error => {
-                                            console.error(error);
-
-                                            errorEmbed.setDescription(`${error}`);
-
-                                            await interaction.followUp({ embeds: [errorEmbed] });
-                                            return await session.close();
-                                        });
-                                })
-                                .catch(async error => {
-                                    console.error(error);
-
-                                    errorEmbed.setDescription(`${error}`);
-
-                                    await interaction.followUp({ embeds: [errorEmbed] });
+                                    await newMessage.react('✅');
+                                    await session.sql(`update communityEvents set annsMessageId = ${newMessage.id} where eventId = '${eventId}';`).execute();
                                     return await session.close();
-                                });
-                        })
-                        .catch(async error => {
-                            console.error(error);
-
-                            errorEmbed.setDescription(`${error}`);
-
-                            await interaction.followUp({ embeds: [errorEmbed] });
-                            return await session.close();
-                        });
-                } else if (interaction.options.getSubcommandGroup() === 'update') {
-                    const eventId = interaction.options.getString('event_id', true);
-
-                    await session.sql(`select eventStatus from communityEvents where eventId = '${eventId}';`).execute()
-                        .then(async result => {
-                            const status = result.fetchOne()[0];
-
-                            if (status !== 1) {
-                                errorEmbed.setDescription(`Can only update the scheduled event.`);
-
-                                await interaction.followUp({ embeds: [errorEmbed] });
-
-                                return await session.close();
-                            } else {
-                                if (interaction.options.getSubcommand() === 'time') {
-                                    const time = interaction.options.getInteger('new_time', true);
-
-                                    await session.sql(`select eventTime from communityEvents where eventId = '${eventId}';`).execute()
-                                        .then(async result => {
-                                            const oldTime = result.fetchOne();
-
-                                            if (oldTime === time) {
-                                                errorEmbed.setDescription(`New time cannot be the same as the old time.`);
-
-                                                await interaction.followUp({ embeds: [errorEmbed] });
-
-                                                return await session.close();
-                                            } else {
-                                                await session.sql(`update communityEvents set eventTime = ${time} where eventId = '${eventId}';`).execute()
-                                                    .then(async _ => {
-                                                        const clientEmbed = new EmbedBuilder()
-                                                            .setColor(0x00FF00)
-                                                            .setTitle('Event rescheduled successfully.')
-                                                            .setDescription(`The scheduled event has been rescheduled successfully.\n\n**New time:** <t:${time}:f>`)
-                                                            .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
-                                                            .setTimestamp()
-                                                            .setFooter({ text: 'Spy' });
-
-                                                        await session.sql(`select eventGameName, gameThumbnailUrl from communityEvents where eventId = '${eventId}';`).execute()
-                                                            .then(async result => {
-                                                                const array = result.fetchOne();
-                                                                const gameName = array[0];
-                                                                const gameThumbnail = array[1];
-
-                                                                const eventEmbed = new EmbedBuilder()
-                                                                    .setColor(0x2B2D31)
-                                                                    .setTitle(`The scheduled event in ${gameName} has been rescheduled.`)
-                                                                    .setDescription(`The scheduled event in ${gameName} has been rescheduled.\n\n## New time: <t:${time}:f>\n\n**React with :white_check_mark: if you are still able to attend.**`)
-                                                                    .setThumbnail(gameThumbnail)
-                                                                    .setTimestamp()
-                                                                    .setFooter({ text: `Spy | Event ID: ${eventId}` })
-
-                                                                await interaction.followUp({ embeds: [clientEmbed] });
-
-                                                                const channel = interaction.client.channels.cache.find(channel => channel.name === 'event-announcements');
-
-                                                                session.sql(`select annsMessageId from communityEvents where eventId = '${eventId}';`).execute()
-                                                                    .then(async result => {
-                                                                        const messageId = result.fetchOne()[0];
-                                                                        const annsMessage = channel.messages.cache.get(messageId);
-                                                                        const newMessage = await annsMessage.reply({ content: `<@&1289909425368338505>`, embeds: [eventEmbed] });
-
-                                                                        await newMessage.react('✅');
-
-                                                                        session.sql(`update communityEvents set annsMessageId = ${newMessage.id} where eventId = '${eventId}';`).execute();
-
-                                                                        return await session.close();
-                                                                    })
-                                                                    .catch(async error => {
-                                                                        console.error(error);
-
-                                                                        errorEmbed.setDescription(`${error}`);
-
-                                                                        await interaction.followUp({ embeds: [errorEmbed] });
-                                                                        return await session.close();
-                                                                    });
-                                                            })
-                                                            .catch(async error => {
-                                                                console.error(error);
-
-                                                                errorEmbed.setDescription(`${error}`);
-
-                                                                await interaction.followUp({ embeds: [errorEmbed] });
-                                                                return await session.close();
-                                                            });
-                                                    })
-                                                    .catch(async error => {
-                                                        console.error(error);
-
-                                                        errorEmbed.setDescription(`${error}`);
-
-                                                        await interaction.followUp({ embeds: [errorEmbed] });
-                                                        return await session.close();
-                                                    });
-                                            }
-                                        })
-                                        .catch(async error => {
-                                            console.error(error);
-
-                                            errorEmbed.setDescription(`${error}`);
-
-                                            await interaction.followUp({ embeds: [errorEmbed] });
-                                            return await session.close();
-                                        });
                                 }
                             }
-                        })
-                        .catch(async error => {
-                            console.error(error);
+                        }
+                    }
+                })
+        } catch (error) {
+            console.error(error);
 
-                            errorEmbed.setDescription(`${error}`);
-
-                            await interaction.followUp({ embeds: [errorEmbed] });
-                            return await session.close();
-                        });
-                }
+            await interaction.followUp({
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor(0xFF0000)
+                        .setTitle('Error.')
+                        .setDescription('An error has occured while executing this command.')
+                        .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
+                        .setTimestamp()
+                        .setFooter({ text: 'Spy' })
+                ]
             })
-            .catch(async error => {
-                console.error(error);
-
-                errorEmbed.setDescription(`${error}`);
-
-                return await interaction.followUp({ embeds: [errorEmbed] });
-            });
+        }
     },
 };
