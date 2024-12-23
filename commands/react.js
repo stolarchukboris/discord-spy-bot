@@ -22,7 +22,6 @@ module.exports = {
 		if (interaction.user.id === ownerId) {
             const id = interaction.options.getString('message_id', true);
             const reaction = interaction.options.getString('reaction', true);
-
             const message = interaction.channel.messages.cache.get(id);
             
             await message.react(reaction);

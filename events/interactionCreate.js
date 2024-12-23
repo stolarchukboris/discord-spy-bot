@@ -15,6 +15,7 @@ module.exports = {
 		const embed = new EmbedBuilder()
 			.setColor(0xFF0000)
 			.setTitle('Error.')
+			.setDescription(`An error has occured while executing this command.\nCheck logs for more information.`)
 			.setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
 			.setTimestamp()
 			.setFooter({ text: 'Spy' });
@@ -24,13 +25,9 @@ module.exports = {
 		} catch (error) {
 			console.error(error);
 			if (interaction.replied || interaction.deferred) {
-				embed.setDescription(`An error has occured while executing this command.\nCheck logs for more information.`);
-
-				await interaction.followUp({ embeds: [embed], ephemeral: true });
+				return await interaction.followUp({ embeds: [embed], ephemeral: true });
 			} else {
-				embed.setDescription(`An error has occured while executing this command.\nCheck logs for more information.`);
-				
-				await interaction.reply({ embeds: [embed], ephemeral: true });
+				return await interaction.reply({ embeds: [embed], ephemeral: true });
 			}
 		}
 	},

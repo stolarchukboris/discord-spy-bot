@@ -1,9 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
-	data: new SlashCommandBuilder()
-		.setName('msg')
-		.setDescription('Send a message to the channel.')
+    data: new SlashCommandBuilder()
+        .setName('msg')
+        .setDescription('Send a message to the channel.')
         .addStringOption(option =>
             option
                 .setName('channel_id')
@@ -16,17 +16,16 @@ module.exports = {
                 .setDescription('The message itself.')
                 .setRequired(true)
         ),
-	async execute(interaction) {
+    async execute(interaction) {
         const ownerId = process.env.OWNER_ID;
-        
-		if (interaction.user.id === ownerId) {
+
+        if (interaction.user.id === ownerId) {
             const id = interaction.options.getString('channel_id', true);
             const content = interaction.options.getString('message', true);
-
             const channel = interaction.client.channels.cache.get(id);
-            
-            channel.send(content);
-            await interaction.reply({ content: 'Sent!', ephemeral: true })
+
+            await channel.send(content);
+            return await interaction.reply({ content: 'Sent!', ephemeral: true })
         } else {
             const mbed = new EmbedBuilder()
                 .setColor(0xFF0000)
@@ -36,7 +35,7 @@ module.exports = {
                 .setTimestamp()
                 .setFooter({ text: 'Spy' });
 
-            await interaction.reply({ embeds: [mbed] });
+            return await interaction.reply({ embeds: [mbed] });
         }
-	},
+    },
 };

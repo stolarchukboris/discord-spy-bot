@@ -7,7 +7,7 @@ module.exports = {
         .setDescription('Reboot the bot and reload all components.'),
     async execute(interaction) {
         const ownerId = process.env.OWNER_ID;
-        
+
         if (interaction.user.id === ownerId) {
             const mbed = new EmbedBuilder()
                 .setColor(0x00FF00)
@@ -15,10 +15,10 @@ module.exports = {
                 .setDescription(`Bot reboot is in progress. Please wait...`)
                 .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
                 .setTimestamp()
-                .setFooter({ text: 'Spy'});
+                .setFooter({ text: 'Spy' });
 
             await interaction.reply({ embeds: [mbed] });
-            process.exit();
+            return process.exit();
         } else {
             const mbed = new EmbedBuilder()
                 .setColor(0xFF0000)
@@ -26,9 +26,9 @@ module.exports = {
                 .setDescription(`You are not authorized to run this command.`)
                 .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
                 .setTimestamp()
-                .setFooter({ text: 'Spy'});
+                .setFooter({ text: 'Spy' });
 
-            await interaction.reply({ embeds: [mbed] });
+            return await interaction.reply({ embeds: [mbed] });
         }
     },
 };

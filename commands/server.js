@@ -6,10 +6,10 @@ module.exports = {
 		.setDescription('Provides information about this server.'),
 	async execute(interaction) {
 		const mbed = new EmbedBuilder()
-            .setColor(0xAAAAFF)
-            .setTitle('Server information.')
-            .setDescription('Get information about the server.')
-            .setThumbnail(`${await interaction.guild.iconURL()}`)
+			.setColor(0xAAAAFF)
+			.setTitle('Server information.')
+			.setDescription('Get information about the server.')
+			.setThumbnail(`${await interaction.guild.iconURL()}`)
 			.addFields(
 				{ name: 'Server name:', value: `${interaction.guild.name}`, inline: true },
 				{ name: 'Server owner:', value: `<@${interaction.guild.ownerId}>`, inline: true },
@@ -19,9 +19,9 @@ module.exports = {
 				{ name: 'Maximum server bitrate:', value: `${interaction.guild.maximumBitrate}`, inline: true },
 				{ name: 'Server description:', value: `${interaction.guild.description ?? 'No description provided.'}` }
 			)
-            .setTimestamp()
-            .setFooter({ text: 'Spy' });
+			.setTimestamp()
+			.setFooter({ text: 'Spy' });
 
-        await interaction.reply({ embeds: [mbed] });
+		return await interaction.reply({ embeds: [mbed] });
 	},
 };

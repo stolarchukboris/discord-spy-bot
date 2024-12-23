@@ -39,16 +39,16 @@ module.exports = {
 
                     let offset = Math.round(data.location.utc_offset);
 
-                    if (offset >= 0) {offset = `+${offset}`}
-                    else {offset = `${offset}`}
+                    if (offset >= 0) { offset = `+${offset}` }
+                    else { offset = `${offset}` };
 
                     let uvIndex = current.uv_index;
 
-                    if (uvIndex <= 2) {uvIndex = `${uvIndex} (Low)`}
-                    else if (uvIndex >= 3 && uvIndex <= 5) {uvIndex = `${uvIndex} (Medium)`}
-                    else if (uvIndex >= 6 && uvIndex <= 7) {uvIndex = `${uvIndex} (High)`}
-                    else if (uvIndex >= 8 && uvIndex <= 10) {uvIndex = `${uvIndex} (Very high)`}
-                    else if (uvIndex >= 11) {uvIndex = `${uvIndex} (EXTREME)`}
+                    if (uvIndex <= 2) { uvIndex = `${uvIndex} (Low)` }
+                    else if (uvIndex >= 3 && uvIndex <= 5) { uvIndex = `${uvIndex} (Medium)` }
+                    else if (uvIndex >= 6 && uvIndex <= 7) { uvIndex = `${uvIndex} (High)` }
+                    else if (uvIndex >= 8 && uvIndex <= 10) { uvIndex = `${uvIndex} (Very high)` }
+                    else if (uvIndex >= 11) { uvIndex = `${uvIndex} (EXTREME)` };
 
                     const mbed = new EmbedBuilder()
                         .setColor(0xFFFFFF)
@@ -56,13 +56,13 @@ module.exports = {
                         .setTitle(`Weather in ${data.request.query}.`)
                         .setThumbnail(`${current.weather_icons[0]}`)
                         .addFields(
-                            {name: 'Observation time:', value: `${current.observation_time} UTC`, inline: true},
-                            {name: 'Local time and date:', value: `${data.location.localtime}\n(Timezone: UTC${offset})`, inline: true},
-                            {name: 'Weather stats', value: codeBlock('yaml', `Temperature: ${current.temperature}°C (Feels like ${current.feelslike}°C), ${current.weather_descriptions[0]}\nWind: ${Math.round(current.wind_speed * 1000 / 3600)} m/s ${current.wind_degree}° ${current.wind_dir}\nAtmospheric pressure: ${current.pressure * 0.75} mmHg\nPrecipitation: ${current.precip} mm; Humidity: ${current.humidity}%\nVisibility: ${current.visibility} km\nUV Index: ${uvIndex}`)})
+                            { name: 'Observation time:', value: `${current.observation_time} UTC`, inline: true },
+                            { name: 'Local time and date:', value: `${data.location.localtime}\n(Timezone: UTC${offset})`, inline: true },
+                            { name: 'Weather stats', value: codeBlock('yaml', `Temperature: ${current.temperature}°C (Feels like ${current.feelslike}°C), ${current.weather_descriptions[0]}\nWind: ${Math.round(current.wind_speed * 1000 / 3600)} m/s ${current.wind_degree}° ${current.wind_dir}\nAtmospheric pressure: ${current.pressure * 0.75} mmHg\nPrecipitation: ${current.precip} mm; Humidity: ${current.humidity}%\nVisibility: ${current.visibility} km\nUV Index: ${uvIndex}`) })
                         .setTimestamp()
                         .setFooter({ text: 'Spy' });
 
-                    await interaction.followUp({ embeds: [mbed] });
+                    return await interaction.followUp({ embeds: [mbed] });
                 })
 
                 .catch(async function (error) {
@@ -76,9 +76,8 @@ module.exports = {
                         .setTimestamp()
                         .setFooter({ text: 'Spy' });
 
-                    await interaction.followUp({ embeds: [errorMbed] });
+                    return await interaction.followUp({ embeds: [errorMbed] });
                 })
-
         }
     },
 };

@@ -47,58 +47,43 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply();
 
-        try {
-            await mysql.getSession(db_config)
-                .then(async session => {
-                    if (interaction.options.getSubcommand() === 'alter') {
-                        const setting = interaction.options.getString('setting', true);
-                        const settingValue = interaction.options.getString('value', true);
+        await mysql.getSession(db_config)
+            .then(async session => {
+                if (interaction.options.getSubcommand() === 'alter') {
+                    const setting = interaction.options.getString('setting', true);
+                    const settingValue = interaction.options.getString('value', true);
 
-                        await session.sql(`insert into ${setting} values (${interaction.guild.id}, ${settingValue}) on duplicate key update settingValue = ${settingValue};`).execute()
+                    await session.sql(`insert into ${setting} values (${interaction.guild.id}, ${settingValue}) on duplicate key update settingValue = ${settingValue};`).execute()
 
-                        await interaction.followUp({
-                            embeds: [
-                                new EmbedBuilder()
-                                    .setColor(0x00FF00)
-                                    .setTitle('Setting updated.')
-                                    .setDescription(`Setting \`${setting}\` has been successfully set to \`${settingValue}\`.`)
-                                    .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
-                                    .setTimestamp()
-                                    .setFooter({ text: 'Spy Configuration' })
-                            ]
-                        });
-                    } else if (interaction.options.getSubcommand() === 'clear') {
-                        const setting = interaction.options.getString('setting', true);
+                    await interaction.followUp({
+                        embeds: [
+                            new EmbedBuilder()
+                                .setColor(0x00FF00)
+                                .setTitle('Setting updated.')
+                                .setDescription(`Setting \`${setting}\` has been successfully set to \`${settingValue}\`.`)
+                                .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
+                                .setTimestamp()
+                                .setFooter({ text: 'Spy Configuration' })
+                        ]
+                    });
+                } else if (interaction.options.getSubcommand() === 'clear') {
+                    const setting = interaction.options.getString('setting', true);
 
-                        await session.sql(`delete from ${setting} where guildId = ${interaction.guild.id};`).execute();
+                    await session.sql(`delete from ${setting} where guildId = ${interaction.guild.id};`).execute();
 
-                        await interaction.followUp({
-                            embeds: [
-                                new EmbedBuilder()
-                                    .setColor(0x00FF00)
-                                    .setTitle('Setting cleared.')
-                                    .setDescription(`Setting \`${setting}\` has been successfully cleared.`)
-                                    .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
-                                    .setTimestamp()
-                                    .setFooter({ text: 'Spy Configuration' })
-                            ]
-                        });
-                    }
-                    return await session.close();
-                })
-        } catch (error) {
-            console.error(error);
-            await interaction.followUp({
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor(0xFF0000)
-                        .setTitle('Error.')
-                        .setDescription('An error has occured while executing this command.')
-                        .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
-                        .setTimestamp()
-                        .setFooter({ text: 'Spy Configuration' })
-                ]
-            });
-        }
+                    await interaction.followUp({
+                        embeds: [
+                            new EmbedBuilder()
+                                .setColor(0x00FF00)
+                                .setTitle('Setting cleared.')
+                                .setDescription(`Setting \`${setting}\` has been successfully cleared.`)
+                                .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
+                                .setTimestamp()
+                                .setFooter({ text: 'Spy Configuration' })
+                        ]
+                    });
+                }
+                return await session.close();
+            })
     },
 };

@@ -29,8 +29,8 @@ module.exports = {
                 { name: 'Dependencies', value: codeBlock('yaml', `${str}`), inline: true }
             )
             .setTimestamp()
-            .setFooter({ text: 'Spy'});
+            .setFooter({ text: 'Spy' });
 
-        await interaction.reply({embeds: [mbed]});
+        return await interaction.reply({ embeds: [mbed] });
     },
 };

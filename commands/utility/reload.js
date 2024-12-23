@@ -26,7 +26,7 @@ module.exports = {
 
 	async execute(interaction) {
 		const ownerId = process.env.OWNER_ID;
-		
+
 		if (interaction.user.id === ownerId) {
 			if (interaction.options.getSubcommand() === 'command') {
 				const commandName = interaction.options.getString('command', true).toLowerCase();
@@ -38,7 +38,7 @@ module.exports = {
 					.setDescription(`Successfully reloaded a command "/${command.data.name}".`)
 					.setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
 					.setTimestamp()
-					.setFooter({ text: 'Spy'});
+					.setFooter({ text: 'Spy' });
 
 				if (!command) {
 					const mbed = new EmbedBuilder()
@@ -46,9 +46,9 @@ module.exports = {
 						.setTitle(`Reload error.`)
 						.setDescription(`There is no command with name "/${commandName}".`)
 						.setTimestamp()
-						.setFooter({ text: 'Spy'});
+						.setFooter({ text: 'Spy' });
 
-					return await interaction.reply({embeds: [mbed]})
+					return await interaction.reply({ embeds: [mbed] })
 				}
 
 				try {
@@ -58,10 +58,10 @@ module.exports = {
 						const newCommand = require(`./${command.data.name}.js`);
 						await interaction.client.commands.set(newCommand.data.name, newCommand);
 
-						await interaction.reply({embeds: [mbedSuccess]})
+						return await interaction.reply({ embeds: [mbedSuccess] })
 					} catch (error) {
 						console.error(error);
-						await interaction.reply(`There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``);
+						return await interaction.reply(`There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``);
 					}
 				} catch {
 					delete require.cache[require.resolve(`../${command.data.name}.js`)];
@@ -70,10 +70,10 @@ module.exports = {
 						const newCommand = require(`../${command.data.name}.js`);
 						await interaction.client.commands.set(newCommand.data.name, newCommand);
 
-						await interaction.reply({embeds: [mbedSuccess]})
+						return await interaction.reply({ embeds: [mbedSuccess] })
 					} catch (error) {
 						console.error(error);
-						await interaction.reply(`There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``);
+						return await interaction.reply(`There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``);
 					}
 				}
 			} else if (interaction.options.getSubcommand() === 'cmds') {
@@ -98,7 +98,7 @@ module.exports = {
 						await interaction.client.commands.set(newCommand.data.name, newCommand);
 					} catch (error) {
 						console.error(error);
-						await interaction.reply(`There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``);
+						return await interaction.reply(`There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``);
 					}
 				}
 
@@ -113,7 +113,7 @@ module.exports = {
 						await interaction.client.commands.set(newCommand.data.name, newCommand);
 					} catch (error) {
 						console.error(error);
-						await interaction.reply(`There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``);
+						return await interaction.reply(`There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``);
 					}
 				}
 				const mbed = new EmbedBuilder()
@@ -122,9 +122,9 @@ module.exports = {
 					.setDescription('All bot commands have been successfully reloaded.')
 					.setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
 					.setTimestamp()
-					.setFooter({ text: 'Spy'});
+					.setFooter({ text: 'Spy' });
 
-				await interaction.reply({embeds: [mbed]})
+				return await interaction.reply({ embeds: [mbed] })
 			}
 		} else {
 			const mbed = new EmbedBuilder()
@@ -133,9 +133,9 @@ module.exports = {
 				.setDescription(`You are not authorized to run this command.`)
 				.setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
 				.setTimestamp()
-				.setFooter({ text: 'Spy'});
+				.setFooter({ text: 'Spy' });
 
-			await interaction.reply({ embeds: [mbed] });
+			return await interaction.reply({ embeds: [mbed] });
 		}
-    },
+	},
 };

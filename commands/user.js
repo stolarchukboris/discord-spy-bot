@@ -10,23 +10,21 @@ module.exports = {
 				.setDescription('Username or User ID to fetch. Ignore to get info on yourself.')),
 
 	async execute(interaction) {
-		let opt = interaction.options.getUser('user');
-
-		if (opt === null) {opt = interaction.user}
+		const opt = interaction.options.getUser('user') ?? interaction.user;
 
 		const mbed = new EmbedBuilder()
-            .setColor(0xAAAAFF)
-            .setTitle('Server member information.')
-            .setDescription(`Get information about ${opt}.`)
+			.setColor(0xAAAAFF)
+			.setTitle('Server member information.')
+			.setDescription(`Get information about ${opt}.`)
 			.setThumbnail(`${opt.avatarURL()}`)
 			.addFields(
-				{name: 'Username:', value: `${opt.username}`, inline: true},
-				{name: 'Join date:', value: `<t:${parseInt(interaction.member.joinedTimestamp/1000)}:f>`, inline: true},
-				{name: 'ID:', value: `${opt.id}`, inline: true}
+				{ name: 'Username:', value: `${opt.username}`, inline: true },
+				{ name: 'Join date:', value: `<t:${parseInt(interaction.member.joinedTimestamp / 1000)}:f>`, inline: true },
+				{ name: 'ID:', value: `${opt.id}`, inline: true }
 			)
-            .setTimestamp()
-            .setFooter({ text: 'Spy'});
+			.setTimestamp()
+			.setFooter({ text: 'Spy' });
 
-        await interaction.reply({embeds: [mbed]});
+		return await interaction.reply({ embeds: [mbed] });
 	},
 };
