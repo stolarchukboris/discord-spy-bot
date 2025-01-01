@@ -9,14 +9,14 @@ module.exports = {
         await interaction.deferReply();
 
         if (interaction.user.id === process.env.OWNER_ID) {
-            await interaction.editReply('`Re-Deploying...`')
+            await interaction.followUp('`Re-Deploying...`')
 
             const { stdout, stderr } = spawn('node deploy-commands', { shell: true })
 
             stderr.on('data', async (data) => {
                 console.log(`stderr: ${data}`);
 
-                await interaction.editReply({
+                await interaction.followUp({
                     embeds: [
                         new EmbedBuilder()
                             .setColor(Colors.Red)
@@ -34,7 +34,7 @@ module.exports = {
             stdout.on('data', async (data) => {
                 console.log(`stdout: ${data}`);
 
-                await interaction.editReply({
+                await interaction.followUp({
                     embeds: [
                         new EmbedBuilder()
                             .setColor(Colors.Blurple)
