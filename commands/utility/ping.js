@@ -8,7 +8,7 @@ module.exports = {
 	async execute(interaction) {
 		const mbed = new EmbedBuilder()
 			.setColor(0x00FF00)
-			.setTitle(`p ong!`)
+			.setTitle(`Pong!`)
 			.setDescription(`Websocket heartbeat: ${interaction.client.ws.ping} ms.`)
 			.setThumbnail('https://gas-kvas.com/grafic/uploads/posts/2024-01/gas-kvas-com-p-znak-serdtsa-na-prozrachnom-fone-44.png')
 			.setTimestamp()
