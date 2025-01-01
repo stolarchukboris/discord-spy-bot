@@ -48,10 +48,8 @@ module.exports = {
                     ]
                 });
 
-                if (data !== 'Already up to date.') {
-                    await new Promise(resolve => setTimeout(resolve, 30_000));
-                    return process.exit();
-                };
+                await new Promise(resolve => setTimeout(resolve, 30_000));
+                return process.exit();
             });
         } else {
             const mbed = new EmbedBuilder()
