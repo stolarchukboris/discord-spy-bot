@@ -22,7 +22,7 @@ module.exports = {
         const mbed = new EmbedBuilder()
             .setColor(0x00FF00)
             .setTitle(`Spy`)
-            .setDescription(`Information on Spy bot.`)
+            .setDescription(`Spy bot is brought to you by <@${process.env.OWNER_ID}>. You can visit the bot's GitHub repository [here](https://github.com/PleasedontslammykeyboarddfsdoijfwR/discord-spy-bot).`)
             .addFields(
                 { name: 'Host System', value: codeBlock('yaml', `OS: ${os.machine()} ${os.platform()}-${os.release()}\nCPU: ${os.arch()} ${os.cpus()[0].model}\nUsed RAM: ${Math.round((os.totalmem() - os.freemem()) / 1048576)} MB\nUptime: ${new Date(os.uptime() * 1000).toISOString().substring(11, 19)}`) },
                 { name: 'Bot', value: codeBlock('yaml', `Used RAM: ${Math.round(process.memoryUsage().heapUsed / 1048576)} MB\nUptime: ${uptimeStr}`), inline: true },
