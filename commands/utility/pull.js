@@ -34,7 +34,7 @@ module.exports = {
             stdout.on('data', async (data) => {
                 console.log(`stdout: ${data}`);
 
-                await interaction.followUp({
+                await interaction.editReply({
                     embeds: [
                         new EmbedBuilder()
                             .setColor(Colors.Blurple)
