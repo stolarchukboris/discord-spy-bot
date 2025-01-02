@@ -2,6 +2,7 @@ const { spawn } = require('child_process');
 const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {
+    category: 'utility',
     data: new SlashCommandBuilder()
         .setName('pull')
         .setDescription('[DEV] Pull latest changes from Git Main and restart.'),
