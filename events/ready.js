@@ -37,5 +37,7 @@ export async function execute(client) {
 
 	while (true) {
 		await eventReminder(client);
+
+		await new Promise(resolve => setTimeout(resolve, 1_000));
 	};
 }
