@@ -56,8 +56,8 @@ module.exports = {
                     ])
                     .setTimestamp()
                     .setFooter({
-                        text: interaction.guild.name,
-                        iconURL: interaction.guild.iconURL()
+                        text: 'Spy',
+                        iconURL: interaction.client.user.avatarURL()
                     })
             ]
         });
