@@ -120,7 +120,7 @@ export async function execute(interaction) {
             const thumbnailResponse = await axios.get(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeid}&returnPolicy=PlaceHolder&size=150x150&format=Webp&isCircular=false`);
             const gameThumbnail = thumbnailResponse.data.data[0].imageUrl;
 
-            await session.sql(`insert into communityEvents(eventId, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime) values ('${eventId}', '${gameUrl}', '${gameName}', '${gameThumbnail}', ${time});`).execute();
+            await session.sql(`insert into communityEvents(eventId, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime, eventStatus, reminded) values ('${eventId}', '${gameUrl}', '${gameName}', '${gameThumbnail}', ${time}, 1, 0);`).execute();
             await interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
@@ -157,12 +157,10 @@ export async function execute(interaction) {
             await sentAnns.react('✅');
             await channel.send(gameUrl);
             await session.sql(`update communityEvents set annsMessageId = ${sentAnns.id} where eventId = '${eventId}';`).execute();
-            return await session.close();
         } else {
             errorEmbed.setDescription(`There's already an event scheduled for this time.`);
 
             await interaction.followUp({ embeds: [errorEmbed] });
-            return await session.close();
         };
     } else if (interaction.options.getSubcommand() === 'start') {
         const eventId = interaction.options.getString('event_id', true);
@@ -174,7 +172,6 @@ export async function execute(interaction) {
             errorEmbed.setDescription(`The event is already started.`);
 
             await interaction.followUp({ embeds: [errorEmbed] });
-            return await session.close();
         } else {
             await session.sql(`update communityEvents set eventStatus = 2 where eventId = '${eventId}';`).execute();
 
@@ -218,8 +215,6 @@ export async function execute(interaction) {
                         .setFooter({ text: 'Spy' })
                 ]
             });
-
-            return await session.close();
         }
     } else if (interaction.options.getSubcommand() === 'conclude') {
         const eventId = interaction.options.getString('event_id', true);
@@ -231,7 +226,6 @@ export async function execute(interaction) {
             errorEmbed.setDescription(`The event is not started yet.`);
 
             await interaction.followUp({ embeds: [errorEmbed] });
-            return await session.close();
         } else {
             await session.sql(`update communityEvents set eventStatus = 3 where eventId = '${eventId}';`).execute();
 
@@ -274,7 +268,6 @@ export async function execute(interaction) {
             });
 
             await session.sql(`delete from communityEvents where eventId = '${eventId}';`).execute();
-            return await session.close();
         }
     } else if (interaction.options.getSubcommand() === 'cancel') {
         const eventId = interaction.options.getString('event_id', true);
@@ -319,7 +312,6 @@ export async function execute(interaction) {
         });
 
         await session.sql(`delete from communityEvents where eventId = '${eventId}';`).execute();
-        return await session.close();
     } else if (interaction.options.getSubcommandGroup() === 'update') {
         const eventId = interaction.options.getString('event_id', true);
         const result = await session.sql(`select eventStatus from communityEvents where eventId = '${eventId}';`).execute();
@@ -329,7 +321,6 @@ export async function execute(interaction) {
             errorEmbed.setDescription(`You can only update the scheduled event.`);
 
             await interaction.followUp({ embeds: [errorEmbed] });
-            return await session.close();
         } else {
             if (interaction.options.getSubcommand() === 'time') {
                 const time = interaction.options.getInteger('new_time', true);
@@ -340,7 +331,6 @@ export async function execute(interaction) {
                     errorEmbed.setDescription(`New time cannot be the same as the old time.`);
 
                     await interaction.followUp({ embeds: [errorEmbed] });
-                    return await session.close();
                 } else {
                     await session.sql(`update communityEvents set eventTime = ${time} where eventId = '${eventId}';`).execute();
 
@@ -399,9 +389,8 @@ export async function execute(interaction) {
                                 .setFooter(annsMessage.embeds[0].footer)
                         ]
                     });
-                    return await session.close();
-                }
-            }
-        }
-    }
-}
+                };
+            };
+        };
+    };
+};
