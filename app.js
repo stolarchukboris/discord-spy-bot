@@ -2,9 +2,7 @@ import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import { config } from 'dotenv';
-import { createRequire } from "module";
 import { getSession } from '@mysql/xdevapi';
-const require = createRequire(import.meta.url);
 const __dirname = import.meta.dirname;
 
 config();

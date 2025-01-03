@@ -18,6 +18,7 @@ export async function execute(interaction) {
             .setFooter({ text: 'Spy' });
 
         await interaction.editReply({ embeds: [mbed] });
+        await interaction.client.session.close();
         return process.exit();
     } else {
         const mbed = new EmbedBuilder()
