@@ -52,7 +52,7 @@ export async function execute(interaction) {
 				delete require.cache[require.resolve(`./${command.data.name}.js`)];
 
 				try {
-					const newCommand = require(`./${command.data.name}.js`);
+					const newCommand = (await import(`./${command.data.name}.js`));
 					await interaction.client.commands.set(newCommand.data.name, newCommand);
 
 					return await interaction.editReply({ embeds: [mbedSuccess] });
@@ -64,7 +64,7 @@ export async function execute(interaction) {
 				delete require.cache[require.resolve(`../${command.data.name}.js`)];
 
 				try {
-					const newCommand = require(`../${command.data.name}.js`);
+					const newCommand = (await import(`../${command.data.name}.js`));
 					await interaction.client.commands.set(newCommand.data.name, newCommand);
 
 					return await interaction.editReply({ embeds: [mbedSuccess] });
@@ -86,12 +86,12 @@ export async function execute(interaction) {
 
 			for (const file of commandFiles) {
 				const filePath = join(foldersPath, file);
-				const command = require(filePath);
+				const command = (await import(`file://${filePath}`));
 
 				delete require.cache[require.resolve(`../${command.data.name}.js`)];
 
 				try {
-					const newCommand = require(`../${command.data.name}.js`);
+					const newCommand = (await import(`../${command.data.name}.js`));
 					await interaction.client.commands.set(newCommand.data.name, newCommand);
 				} catch (error) {
 					console.error(error);
@@ -101,12 +101,12 @@ export async function execute(interaction) {
 
 			for (const file of utilCommandFiles) {
 				const filePath = join(utilsFolder, file);
-				const command = require(filePath);
+				const command = (await import(`file://${filePath}`));
 
 				delete require.cache[require.resolve(`./${command.data.name}.js`)];
 
 				try {
-					const newCommand = require(`./${command.data.name}.js`);
+					const newCommand = (await import(`./${command.data.name}.js`));
 					await interaction.client.commands.set(newCommand.data.name, newCommand);
 				} catch (error) {
 					console.error(error);
