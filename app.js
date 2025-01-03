@@ -1,25 +1,29 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const dotenv = require('dotenv');
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { Client, Collection, GatewayIntentBits } from 'discord.js';
+import { config } from 'dotenv';
+import { createRequire } from "module";
+import { getSession } from '@mysql/xdevapi';
+const require = createRequire(import.meta.url);
+const __dirname = import.meta.dirname;
 
-dotenv.config();
+config();
 const token = process.env.TOKEN;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.DirectMessages] });
 
 client.commands = new Collection();
-const foldersPath = path.join(__dirname, 'commands');
-const mainFiles = fs.readdirSync(foldersPath);
-const utilsFolder = path.join(foldersPath, 'utility');
-const utils = fs.readdirSync(utilsFolder);
+const foldersPath = join(__dirname, 'commands');
+const mainFiles = readdirSync(foldersPath);
+const utilsFolder = join(foldersPath, 'utility');
+const utils = readdirSync(utilsFolder);
 
 const commandFiles = mainFiles.filter(file => file.endsWith('.js'));
 const utilCommandFiles = utils.filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-	const filePath = path.join(foldersPath, file);
-	const command = require(filePath);
+	const filePath = join(foldersPath, file);
+	const command = (await import(`file://${filePath}`));;
 	if ('data' in command && 'execute' in command) {
 		client.commands.set(command.data.name, command);
 	} else {
@@ -28,8 +32,8 @@ for (const file of commandFiles) {
 }
 
 for (const file of utilCommandFiles) {
-	const filePath = path.join(utilsFolder, file);
-	const command = require(filePath);
+	const filePath = join(utilsFolder, file);
+	const command = (await import(`file://${filePath}`));;
 	if ('data' in command && 'execute' in command) {
 		client.commands.set(command.data.name, command);
 	} else {
@@ -37,17 +41,25 @@ for (const file of utilCommandFiles) {
 	}
 }
 
-const eventsPath = path.join(__dirname, 'events');
-const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+const eventsPath = join(__dirname, 'events');
+const eventFiles = readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
-	const filePath = path.join(eventsPath, file);
-	const event = require(filePath);
+	const filePath = join(eventsPath, file);
+	const event = (await import(`file://${filePath}`));;
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	} else {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
-}
+};
+
+client.session = await getSession({
+	password: process.env.DB_PASS,
+	user: process.env.DB_USER,
+	host: 'localhost',
+	port: 33060,
+	schema: process.env.DB_SCHEMA
+});
 
 client.login(token);

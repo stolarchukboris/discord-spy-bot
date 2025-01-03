@@ -1,37 +1,19 @@
-const { Events, EmbedBuilder } = require('discord.js');
-const mysql = require('@mysql/xdevapi');
-const { db_config } = require('../db_config');
+import { Events, EmbedBuilder } from 'discord.js';
 
-module.exports = {
-    name: Events.InviteDelete,
-    async execute(invite) {
-        await mysql.getSession(db_config)
-            .then(async session => {
-                await session.sql(`select settingValue from serverLogsChannelSetting where guildId = ${invite.guild.id};`).execute()
-                    .then(async result => {
-                        const logsChannelId = result.fetchOne()[0];
+export const name = Events.InviteDelete;
+export async function execute(invite) {
+    const session = invite.client.session;
+    const result = await session.sql(`select settingValue from serverLogsChannelSetting where guildId = ${invite.guild.id};`).execute();
+    const logsChannelId = result.fetchOne()[0];
 
-                        const embed = new EmbedBuilder()
-                            .setColor(0xff7a7a)
-                            .setTitle(`Invite has been deleted.`)
-                            .setDescription(`Invite code: ${invite.code}\nInvite link: ${invite.url}`)
-                            .setTimestamp()
-                            .setFooter({ text: `Spy Moderation` });
+    const embed = new EmbedBuilder()
+        .setColor(16743034)
+        .setTitle(`Invite has been deleted.`)
+        .setDescription(`Invite code: ${invite.code}\nInvite link: ${invite.url}`)
+        .setTimestamp()
+        .setFooter({ text: `Spy Moderation` });
 
-                        const channel = invite.guild.channels.cache.get(logsChannelId);
+    const channel = invite.guild.channels.cache.get(logsChannelId);
 
-                        await channel.send({ embeds: [embed] });
-
-                        return await session.close();
-                    })
-                    .catch(async error => {
-                        console.error(error);
-
-                        return await session.close();
-                    });
-            })
-            .catch(async error => {
-                console.error(error);
-            });
-    }
-}
+    return await channel.send({ embeds: [embed] });
+};

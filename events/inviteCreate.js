@@ -1,40 +1,24 @@
-const { Events, EmbedBuilder } = require('discord.js');
-const mysql = require('@mysql/xdevapi');
-const { db_config } = require('../db_config');
+import { Events, EmbedBuilder } from 'discord.js';
 
-module.exports = {
-    name: Events.InviteCreate,
-    async execute(invite) {
-        await mysql.getSession(db_config)
-            .then(async session => {
-                await session.sql(`select settingValue from serverLogsChannelSetting where guildId = ${invite.guild.id};`).execute()
-                    .then(async result => {
-                        const logsChannelId = result.fetchOne()[0];
+export const name = Events.InviteCreate;
+export async function execute(invite) {
+    const session = invite.client.session;
+    const result = await session.sql(`select settingValue from serverLogsChannelSetting where guildId = ${invite.guild.id};`).execute();
+    const logsChannelId = result.fetchOne()[0];
 
-                        let inviteExp = Math.round(invite.expiresTimestamp / 1000);
+    let inviteExp = Math.round(invite.expiresTimestamp / 1000);
 
-                        if (inviteExp > Math.round(invite.createdTimestamp / 1000)) { inviteExp = `<t:${inviteExp}:f>` }
-                        else { inviteExp = `Doesn't expire` }
+    if (inviteExp > Math.round(invite.createdTimestamp / 1000)) { inviteExp = `<t:${inviteExp}:f>`; }
+    else { inviteExp = `Doesn't expire`; }
 
-                        const embed = new EmbedBuilder()
-                            .setColor(0x2B2D31)
-                            .setTitle(`A new invite link has been generated!`)
-                            .setDescription(`Inviter: <@${invite.inviter.id}>\nCreated: <t:${Math.round(invite.createdTimestamp / 1000)}:f>\nExpires: ${inviteExp}\nInvite code: ${invite.code}\nInvite link: ${invite.url}`)
-                            .setTimestamp()
-                            .setFooter({ text: `Spy Moderation` });
+    const embed = new EmbedBuilder()
+        .setColor(2829617)
+        .setTitle(`A new invite link has been generated!`)
+        .setDescription(`Inviter: <@${invite.inviter.id}>\nCreated: <t:${Math.round(invite.createdTimestamp / 1000)}:f>\nExpires: ${inviteExp}\nInvite code: ${invite.code}\nInvite link: ${invite.url}`)
+        .setTimestamp()
+        .setFooter({ text: `Spy Moderation` });
 
-                        const channel = invite.guild.channels.cache.get(logsChannelId);
+    const channel = invite.guild.channels.cache.get(logsChannelId);
 
-                        await channel.send({ embeds: [embed] });
-                    })
-                    .catch(async error => {
-                        console.error(error);
-
-                        return await session.close();
-                    });
-            })
-            .catch(async error => {
-                console.error(error);
-            });
-    },
+    return await channel.send({ embeds: [embed] });
 };
