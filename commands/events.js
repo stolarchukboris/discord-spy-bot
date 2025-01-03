@@ -120,7 +120,7 @@ export async function execute(interaction) {
             const thumbnailResponse = await axios.get(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeid}&returnPolicy=PlaceHolder&size=150x150&format=Webp&isCircular=false`);
             const gameThumbnail = thumbnailResponse.data.data[0].imageUrl;
 
-            await session.sql(`insert into communityEvents(eventId, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime, reminded) values ('${eventId}', '${gameUrl}', '${gameName}', '${gameThumbnail}', ${time}, 0);`).execute();
+            await session.sql(`insert into communityEvents(eventId, eventHost, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime, reminded) values ('${eventId}', '${interaction.user.id}', '${gameUrl}', '${gameName}', '${gameThumbnail}', ${time}, 0);`).execute();
             await interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
