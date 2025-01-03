@@ -1,4 +1,5 @@
 import { Events, EmbedBuilder, WebhookClient } from 'discord.js';
+import { eventReminder } from '../function.js';
 
 const whUrl = process.env.WH_URL;
 const guildId = process.env.GUILD_ID;
@@ -33,4 +34,8 @@ export async function execute(client) {
 	} catch (error) {
 		console.error(error);
 	}
+
+	while (true) {
+		await eventReminder(client);
+	};
 }
