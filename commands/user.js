@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -13,7 +13,7 @@ module.exports = {
 		const opt = interaction.options.getUser('user') ?? interaction.user;
 
 		const mbed = new EmbedBuilder()
-			.setColor(0xAAAAFF)
+			.setColor(Colors.Blurple)
 			.setTitle('Server member information.')
 			.setDescription(`Get information about ${opt}.`)
 			.setThumbnail(`${opt.avatarURL()}`)

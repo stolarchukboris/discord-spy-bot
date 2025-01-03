@@ -1,4 +1,4 @@
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder, Colors } = require('discord.js');
 const axios = require('axios');
 const mysql = require('@mysql/xdevapi');
 const { db_config } = require('../db_config');
@@ -10,7 +10,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('schedule')
-                .setDescription('Schedule the community event. It will automatically start at the designated time.')
+                .setDescription('Schedule the community event.')
                 .addStringOption(option =>
                     option
                         .setName('game_url')
@@ -110,7 +110,7 @@ module.exports = {
         await interaction.deferReply({ ephemeral: true });
 
         const errorEmbed = new EmbedBuilder()
-            .setColor(0xFF0000)
+            .setColor(Colors.Red)
             .setTitle('Error.')
             .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
             .setTimestamp()
@@ -134,9 +134,9 @@ module.exports = {
                         let eventDesc;
 
                         if (comment === '') {
-                            eventDesc = `**Event host:** <@${interaction.user.id}>\n\n**Event duration**: ${duration}.\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**React with :white_check_mark: if you're planning to attend this event.**`
+                            eventDesc = `**Event duration**: ${duration}.\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**React with :white_check_mark: if you're planning to attend this event.**`
                         } else {
-                            eventDesc = `**Event host:** <@${interaction.user.id}>\n\n**Event duration**: ${duration}.\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**Note from host:** ${comment}\n\n**React with :white_check_mark: if you're planning to attend this event.**`
+                            eventDesc = `**Event duration**: ${duration}.\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**Note from host:** ${comment}\n\n**React with :white_check_mark: if you're planning to attend this event.**`
                         }
 
                         const thumbnailResponse = await axios.get(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeid}&returnPolicy=PlaceHolder&size=150x150&format=Webp&isCircular=false`);
@@ -146,9 +146,13 @@ module.exports = {
                         await interaction.followUp({
                             embeds: [
                                 new EmbedBuilder()
-                                    .setColor(0x00FF00)
+                                    .setColor(Colors.Green)
                                     .setTitle('Event scheduled successfully.')
-                                    .setDescription(`The community event has been scheduled successfully.\n\n**Event UUID:** ${eventId}\n**Event time:** <t:${time}:f>`)
+                                    .setDescription('The community event has been scheduled successfully.')
+                                    .setFields(
+                                        { name: 'Event ID', value: `${eventId}` },
+                                        { name: 'Event Time', value: `<t:${time}:f>` }
+                                    )
                                     .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
                                     .setTimestamp()
                                     .setFooter({ text: 'Spy' })
@@ -163,9 +167,13 @@ module.exports = {
                                     .setColor(0x2B2D31)
                                     .setTitle(`Event in ${gameName} has been scheduled on <t:${time}:f>!`)
                                     .setDescription(eventDesc)
+                                    .setFields(
+                                        { name: 'Event ID', value: `${eventId}`, inline: true },
+                                        { name: 'Event Host', value: `<@${interaction.user.id}>`, inline: true }
+                                    )
                                     .setThumbnail(gameThumbnail)
                                     .setTimestamp()
-                                    .setFooter({ text: `Spy | Event ID: ${eventId}` })
+                                    .setFooter({ text: 'Spy' })
                             ]
                         });
                         await sentAnns.react('✅');
@@ -204,9 +212,10 @@ module.exports = {
                         await interaction.followUp({
                             embeds: [
                                 new EmbedBuilder()
-                                    .setColor(0x00FF00)
+                                    .setColor(Colors.Green)
                                     .setTitle('Event started successfully.')
                                     .setDescription('The scheduled event has been started successfully. Enjoy!')
+                                    .setFields({ name: 'Event ID', value: `${eventId}` })
                                     .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
                                     .setTimestamp()
                                     .setFooter({ text: 'Spy' })
@@ -223,11 +232,12 @@ module.exports = {
                             embeds: [
                                 new EmbedBuilder()
                                     .setColor(0x2B2D31)
-                                    .setTitle(`The scheduled event in ${gameName} is starting now!`)
+                                    .setTitle(`The scheduled event is starting now!`)
                                     .setDescription(desc)
+                                    .setFields({ name: 'Event ID', value: `${eventId}` })
                                     .setThumbnail(gameThumbnail)
                                     .setTimestamp()
-                                    .setFooter({ text: `Spy | Event ID: ${eventId}` })
+                                    .setFooter({ text: 'Spy' })
                             ]
                         });
 
@@ -259,7 +269,7 @@ module.exports = {
                         await interaction.followUp({
                             embeds: [
                                 new EmbedBuilder()
-                                    .setColor(0x00FF00)
+                                    .setColor(Colors.Green)
                                     .setTitle('Event concluded successfully.')
                                     .setDescription('The scheduled event has been concluded successfully.')
                                     .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
@@ -277,7 +287,7 @@ module.exports = {
                             embeds: [
                                 new EmbedBuilder()
                                     .setColor(0x2B2D31)
-                                    .setTitle(`The scheduled event in ${gameName} has been concluded.`)
+                                    .setTitle(`The scheduled event has been concluded.`)
                                     .setDescription(desc)
                                     .setThumbnail(gameThumbnail)
                                     .setTimestamp()
@@ -302,7 +312,7 @@ module.exports = {
                     await interaction.followUp({
                         embeds: [
                             new EmbedBuilder()
-                                .setColor(0x00FF00)
+                                .setColor(Colors.Green)
                                 .setTitle('Event cancelled successfully.')
                                 .setDescription('The scheduled event has been cancelled and deleted successfully.')
                                 .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
@@ -321,8 +331,9 @@ module.exports = {
                         embeds: [
                             new EmbedBuilder()
                                 .setColor(0x2B2D31)
-                                .setTitle(`The scheduled event in ${gameName} has been cancelled.`)
-                                .setDescription(`The scheduled event in ${gameName} has been cancelled.\n\n**Reason:** ${reason}\n\nSorry for the inconvenience!`)
+                                .setTitle(`The scheduled event has been cancelled.`)
+                                .setDescription(`The scheduled event in ${gameName} has been cancelled.\n\nSorry for the inconvenience!`)
+                                .setFields({ name: 'Reason', value: `${reason}` })
                                 .setThumbnail(gameThumbnail)
                                 .setTimestamp()
                                 .setFooter({ text: `Spy` })
@@ -363,9 +374,13 @@ module.exports = {
                                 await interaction.followUp({
                                     embeds: [
                                         new EmbedBuilder()
-                                            .setColor(0x00FF00)
+                                            .setColor(Colors.Green)
                                             .setTitle('Event rescheduled successfully.')
-                                            .setDescription(`The scheduled event has been rescheduled successfully.\n\n**New time:** <t:${time}:f>`)
+                                            .setDescription('The scheduled event has been rescheduled successfully.')
+                                            .setFields(
+                                                { name: 'New Time', value: `<t:${time}:f>` },
+                                                { name: 'Event ID', value: `${eventId}` }
+                                            )
                                             .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
                                             .setTimestamp()
                                             .setFooter({ text: 'Spy' })
@@ -377,21 +392,36 @@ module.exports = {
                                 const annsMessaageResult = await session.sql(`select annsMessageId from communityEvents where eventId = '${eventId}';`).execute();
                                 const messageId = annsMessaageResult.fetchOne()[0];
                                 const annsMessage = channel.messages.cache.get(messageId);
-                                const newMessage = await annsMessage.reply({
+                                await annsMessage.reply({
                                     content: `<@&1289909425368338505>`,
                                     embeds: [
                                         new EmbedBuilder()
                                             .setColor(0x2B2D31)
-                                            .setTitle(`The scheduled event in ${gameName} has been rescheduled.`)
-                                            .setDescription(`The scheduled event in ${gameName} has been rescheduled.\n\n## New time: <t:${time}:f>\n\n**React with :white_check_mark: if you are still able to attend.**`)
+                                            .setTitle(`The scheduled event has been rescheduled.`)
+                                            .setDescription(`The scheduled event in ${gameName} has been rescheduled.\n\n**Please adjust your availability accordingly.**`)
+                                            .setFields(
+                                                { name: 'New Time', value: `<t:${time}:f>`, inline: true },
+                                                { name: 'Event ID', value: `${eventId}`, inline: true }
+                                            )
                                             .setThumbnail(gameThumbnail)
                                             .setTimestamp()
-                                            .setFooter({ text: `Spy | Event ID: ${eventId}` })
+                                            .setFooter({ text: 'Spy' })
                                     ]
                                 });
 
-                                await newMessage.react('✅');
-                                await session.sql(`update communityEvents set annsMessageId = ${newMessage.id} where eventId = '${eventId}';`).execute();
+                                await annsMessage.edit({
+                                    content: annsMessage.content,
+                                    embeds: [
+                                        new EmbedBuilder()
+                                            .setColor(annsMessage.embeds[0].hexColor)
+                                            .setTitle(`Event in ${gameName} has been scheduled on <t:${time}:f>!`)
+                                            .setDescription(annsMessage.embeds[0].description)
+                                            .setThumbnail(annsMessage.embeds[0].thumbnail.url)
+                                            .setTimestamp()
+                                            .setFooter(annsMessage.embeds[0].footer)
+
+                                    ]
+                                });
                                 return await session.close();
                             }
                         }

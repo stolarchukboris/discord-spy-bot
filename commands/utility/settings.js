@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js');
 const mysql = require('@mysql/xdevapi');
 const { db_config } = require('../../db_config');
 
@@ -58,7 +58,7 @@ module.exports = {
                     await interaction.followUp({
                         embeds: [
                             new EmbedBuilder()
-                                .setColor(0x00FF00)
+                                .setColor(Colors.Green)
                                 .setTitle('Setting updated.')
                                 .setDescription(`Setting \`${setting}\` has been successfully set to \`${settingValue}\`.`)
                                 .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
@@ -74,7 +74,7 @@ module.exports = {
                     await interaction.followUp({
                         embeds: [
                             new EmbedBuilder()
-                                .setColor(0x00FF00)
+                                .setColor(Colors.Green)
                                 .setTitle('Setting cleared.')
                                 .setDescription(`Setting \`${setting}\` has been successfully cleared.`)
                                 .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')

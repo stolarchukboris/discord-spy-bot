@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -33,7 +33,7 @@ module.exports = {
         const attachment = interaction.options.getAttachment('attachment');
         const anonymous = interaction.options.getBoolean('anonymous') ?? true;
         const embedToSend = new EmbedBuilder()
-            .setColor(0x00FF00)
+            .setColor(0x2B2D31)
             .setTitle(`You've Got Mail!`)
             .setTimestamp()
             .setFooter({ text: 'Spy' });
@@ -59,7 +59,7 @@ module.exports = {
             return await interaction.editReply({
                 embeds: [
                     new EmbedBuilder()
-                        .setColor(0xFF0000)
+                        .setColor(Colors.Red)
                         .setTitle('Error.')
                         .setDescription('Cannot send an empty message.')
                         .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
@@ -77,7 +77,7 @@ module.exports = {
                 return await interaction.followUp({
                     embeds: [
                         new EmbedBuilder()
-                            .setColor(0xFF0000)
+                            .setColor(Colors.Yellow)
                             .setTitle(`Error.`)
                             .setDescription(`Cannot send a message to <@${user.id}> because the user has this bot blocked.`)
                             .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
@@ -91,7 +91,7 @@ module.exports = {
         return await interaction.followUp({
             embeds: [
                 new EmbedBuilder()
-                    .setColor(0x00FF00)
+                    .setColor(Colors.Green)
                     .setTitle(`Direct message sent.`)
                     .setDescription(`Successfully sent a direct message to <@${user.id}>.`)
                     .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')

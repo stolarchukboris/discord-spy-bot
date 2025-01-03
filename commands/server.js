@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -6,7 +6,7 @@ module.exports = {
 		.setDescription('Provides information about this server.'),
 	async execute(interaction) {
 		const mbed = new EmbedBuilder()
-			.setColor(0xAAAAFF)
+			.setColor(Colors.Blurple)
 			.setTitle('Server information.')
 			.setDescription('Get information about the server.')
 			.setThumbnail(`${await interaction.guild.iconURL()}`)

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -28,7 +28,7 @@ module.exports = {
             await interaction.reply({ content: 'Reacted!', ephemeral: true })
         } else {
             const mbed = new EmbedBuilder()
-                .setColor(0xFF0000)
+                .setColor(Colors.Red)
                 .setTitle(`Error.`)
                 .setDescription(`You are not authorized to run this command.`)
                 .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
