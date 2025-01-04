@@ -383,6 +383,7 @@ export async function execute(interaction) {
                             new EmbedBuilder()
                                 .setColor(annsMessage.embeds[0].hexColor)
                                 .setTitle(`Event in ${gameName} has been scheduled on <t:${time}:f>!`)
+                                .setFields(annsMessage.embeds[0].fields)
                                 .setDescription(annsMessage.embeds[0].description)
                                 .setThumbnail(annsMessage.embeds[0].thumbnail.url)
                                 .setTimestamp()

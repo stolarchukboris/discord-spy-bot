@@ -21,7 +21,7 @@ export const eventReminder = async function (client) {
                 new EmbedBuilder()
                     .setColor(Colors.Yellow)
                     .setTitle('Event Reminder')
-                    .setDescription(`You scheduled event in ${gameName} is starting in 10 minutes.
+                    .setDescription(`Your scheduled event in ${gameName} is starting in 10 minutes.
 Please make sure you are ready for the event!
 If you cannot host the event, please use </events cancel:1291413699550122025> command.`)
                     .setFields({ name: 'Event ID', value: `${eventId} `})
