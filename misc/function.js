@@ -1,19 +1,23 @@
-import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
+import { EmbedBuilder, Colors } from 'discord.js';
 
 export const eventReminder = async function (client) {
     try {
         const channel = client.channels.cache.get('1268223384307634263');
         const now = Math.floor(Date.now() / 1000);
         const tenMinutesFromNow = now + 10 * 60;
-        const eventsCheck = await client.session.sql(`select * from communityEvents where eventTime >= '${now}' and eventTime <= '${tenMinutesFromNow}' and eventStatus = 1 and reminded = 0;`).execute();
-        const event = await eventsCheck.fetchOne();
+        const event = await client.knex('communityEvents')
+            .select('*')
+            .where('eventTime', '>=', now)
+            .andWhere('eventTime', '<=', tenMinutesFromNow)
+            .first();
 
         if (!event) return;
+        if (event.reminded) return;
 
-        const eventId = event[0];
-        const hostId = event[1];
-        const gameName = event[3];
-        const thumbnail = event[4];
+        const eventId = event.eventId;
+        const hostId = event.eventHost;
+        const gameName = event.eventGameName;
+        const thumbnail = event.gameThumbnailUrl;
 
         await channel.send({
             content: `<@${hostId}>`,
@@ -31,7 +35,9 @@ If you cannot host the event, please use </events cancel:1291413699550122025> co
             ]
         });
 
-        return await client.session.sql(`update communityEvents set reminded = 1 where eventId = '${eventId}';`).execute();
+        return await client.knex('communityEvents')
+            .update({ reminded: true })
+            .where('eventId', eventId);
     } catch (error) {
         console.error(error);
     };

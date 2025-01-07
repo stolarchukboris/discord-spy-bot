@@ -1,8 +1,8 @@
-import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, Colors, MessageFlags } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
     .setName('react')
-    .setDescription('React to a certain message. Please run the command in the same channel as the desired message.')
+    .setDescription('[DEV] React to a certain message. Please run the command in the same channel as the desired message.')
     .addStringOption(option => option
         .setName('message_id')
         .setDescription('ID of the message you want to react to.')
@@ -22,7 +22,7 @@ export async function execute(interaction) {
         const message = interaction.channel.messages.cache.get(id);
 
         await message.react(reaction);
-        await interaction.reply({ content: 'Reacted!', ephemeral: true });
+        await interaction.reply({ content: 'Reacted!', flags: MessageFlags.Ephemeral });
     } else {
         const mbed = new EmbedBuilder()
             .setColor(Colors.Red)
@@ -32,6 +32,6 @@ export async function execute(interaction) {
             .setTimestamp()
             .setFooter({ text: 'Spy' });
 
-        await interaction.reply({ embeds: [mbed] });
+        await interaction.reply({ embeds: [mbed], flags: MessageFlags.Ephemeral });
     }
 }

@@ -7,14 +7,13 @@ import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 
 const __dirname = import.meta.dirname;
-const packageJsonPath = path.resolve(__dirname, '../../package.json');
+const packageJsonPath = path.resolve(__dirname, '../package.json');
 const packageJSON = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
 function formatDuration(duration) {
     return moment.duration(duration).format("d[ Days]・h[ Hrs]・m[ Mins]・s[ Secs]");
 };
 
-export const category = 'utility';
 export const data = new SlashCommandBuilder()
     .setName('about')
     .setDescription('Get information about this bot.');

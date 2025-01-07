@@ -2,19 +2,23 @@ import { Events, EmbedBuilder, AttachmentBuilder } from 'discord.js';
 
 export const name = Events.MessageReactionAdd;
 export async function execute(messageReaction) {
-	const session = messageReaction.client.session;
-	const channelResult = await session.sql(`select settingValue from starboardChannelSetting where guildId = ${messageReaction.message.guild.id};`).execute();
-	const channelId = channelResult.fetchOne()[0];
+	const knex = await messageReaction.client.knex;
+	const channelSetting = await knex('starboardChannelSetting')
+		.select('*')
+		.where('guildId', messageReaction.message.guildId)
+		.first();
 
-	if (!channelId) {
-		return await session.close();
-	};
+	if (!channelSetting) return;
 
-	const reactionsResult = await session.sql(`select settingValue from starboardReactionsMin where guildId = ${messageReaction.message.guild.id};`).execute();
-	const minReactions = reactionsResult.fetchOne()[0] ?? 3;
+	const channelId = channelSetting.settingValue;
+	const minReactionsSetting = await knex('starboardReactionsMin')
+		.select('*')
+		.where('guildId', messageReaction.message.guildId)
+		.first();
+	const minReactions = minReactionsSetting.settingValue ?? 3;
 
 	if (messageReaction.emoji.name === '⭐' && messageReaction.count >= minReactions && messageReaction.message.channel.id !== channelId) {
-		const channel = messageReaction.client.channels.cache.get(channelId);
+		const channel = await messageReaction.client.channels.cache.get(channelId);
 		let desc;
 
 		if (typeof messageReaction.message.content === 'string') {
@@ -39,28 +43,48 @@ export async function execute(messageReaction) {
 			}
 		);
 
-		const result = await session.sql(`select starboardMessage from starboardMessages where originMessage = ${messageReaction.message.id};`).execute();
-		const msgId = result.fetchOne();
+		const message = await knex('starboardMessages')
+			.select('*')
+			.where('originMessage', `${messageReaction.message.id}`)
+			.first();
 
-		if (!msgId) {
-			const msg = await channel.send({ content: `${messageReaction.message.channel.url} | ${messageReaction.count} :star:`, embeds: [embed] });
-			const result = await session.sql(`select settingValue from starboardReactToOwnMsgs where guildId = ${messageReaction.message.guild.id};`).execute();
-			const react = result.fetchOne()[0];
+		if (!message) {
+			const msg = await channel.send({
+				content: `${messageReaction.message.channel.url} | ${messageReaction.count} :star:`,
+				embeds: [embed]
+			});
+			const reactSetting = await knex('starboardReactToOwnMsgs')
+				.select('*')
+				.where('guildId', messageReaction.message.guildId)
+				.first();
+			let react = 0;
+			if (reactSetting) react = 1;
 
 			if (react === 1) {
 				await msg.react('⭐');
 			};
 
 			if (files.length !== 0) {
-				channel.send({ files: files });
+				await channel.send({ files: files });
 			};
 
-			await session.sql(`insert into starboardMessages values (${messageReaction.message.id}, ${await msg.id}, ${messageReaction.count});`).execute();
+			await knex('starboardMessages')
+				.insert({
+					originMessage: messageReaction.message.id,
+					starboardMessage: await msg.id,
+					amountOfReactions: messageReaction.count
+				});
 		} else {
-			await session.sql(`update starboardMessages set amountOfReactions = ${messageReaction.count} where originMessage = ${messageReaction.message.id};`).execute();
-			const result = await session.sql(`select starboardMessage from starboardMessages where originMessage = ${messageReaction.message.id};`).execute();
-			const msgId = result.fetchOne()[0];
-			const msgToEdit = channel.messages.cache.get(msgId);
+			await knex('starboardMessages')
+				.update({ amountOfReactions: messageReaction.count })
+				.where('originMessage', messageReaction.message.id);
+
+			const message = await knex('starboardMessages')
+				.select('*')
+				.where('originMessage', messageReaction.message.id)
+				.first();
+			const msgId = message.starboardMessage;
+			const msgToEdit = await channel.messages.cache.get(msgId);
 
 			await msgToEdit.edit(`${messageReaction.message.channel.url} | ${messageReaction.count} :star:`);
 		}

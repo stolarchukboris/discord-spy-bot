@@ -1,5 +1,6 @@
-import { Events, EmbedBuilder, WebhookClient } from 'discord.js';
-import { eventReminder } from '../function.js';
+import { Events, EmbedBuilder, WebhookClient, Colors } from 'discord.js';
+import { eventReminder } from '../misc/function.js';
+import { logos } from '../misc/logos.js';
 
 const whUrl = process.env.WH_URL;
 const guildId = process.env.GUILD_ID;
@@ -14,9 +15,9 @@ export async function execute(client) {
 
 	const embed = new EmbedBuilder()
 		.setTitle('Spy is now working.')
-		.setColor(0x00FF00)
+		.setColor(Colors.Green)
 		.setDescription(`Websocket heartbeat: ${client.ws.ping} ms.`)
-		.setThumbnail('https://gas-kvas.com/grafic/uploads/posts/2024-01/gas-kvas-com-p-znak-serdtsa-na-prozrachnom-fone-44.png')
+		.setThumbnail(logos.heart)
 		.setTimestamp()
 		.setFooter({ text: 'Spy' });
 

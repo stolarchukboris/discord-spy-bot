@@ -1,10 +1,16 @@
-import { Events, EmbedBuilder, AttachmentBuilder, InteractionCallback } from 'discord.js';
+import { Events, EmbedBuilder, AttachmentBuilder } from 'discord.js';
 
 export const name = Events.MessageDelete;
 export async function execute(message) {
-    const session = message.client.session;
-    const result = await session.sql(`select settingValue from serverLogsChannelSetting where guildId = ${message.guild.id};`).execute();
-    const logsChannelId = result.fetchOne()[0];
+    const knex = await message.client.knex;
+    const setting = await knex('serverLogsChannelSetting')
+        .select('*')
+        .where('guildId', message.guildId)
+        .first();
+    
+    if (!setting) return;
+
+    const logsChannelId = setting.settingValue;
     const embed = new EmbedBuilder()
         .setColor(16743034)
         .setTitle(`Message deleted from ${message.channel.url}`)
@@ -25,7 +31,7 @@ export async function execute(message) {
         console.error(error);
     }
 
-    const channel = message.guild.channels.cache.get(logsChannelId);
+    const channel = await message.guild.channels.cache.get(logsChannelId);
 
     await channel.send({ embeds: [embed] });
 

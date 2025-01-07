@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
 
-export const category = 'utility';
 export const data = new SlashCommandBuilder()
 	.setName('ping')
 	.setDescription('Check the websocket heartbeat.');
@@ -16,4 +15,4 @@ export async function execute(interaction) {
 		.setFooter({ text: 'Spy' });
 
 	return await interaction.editReply({ embeds: [mbed] });
-}
+};

@@ -1,8 +1,9 @@
 import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
+import { logos } from '../misc/logos.js';
 
 export const data = new SlashCommandBuilder()
     .setName('dm')
-    .setDescription('Send a direct message to a server member.')
+    .setDescription('[MOD+] Send a direct message to a server member.')
     .addUserOption(option => option
         .setName('member')
         .setDescription('The user to send the message to.')
@@ -21,7 +22,27 @@ export const data = new SlashCommandBuilder()
         .setDescription('(Defaults to TRUE) Should your name be kept unmentioned in the DM headline?')
     );
 export async function execute(interaction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply();
+
+    const knex = interaction.client.knex;
+    const setting = await knex('modUsersRolesSetting')
+        .select('*')
+        .where('guildId', interaction.guild.id);
+    const allowedIds = setting.map(setting => setting.settingValue);
+
+    if (!(allowedIds.includes(interaction.user.id) || interaction.member.roles.cache.hasAny(...allowedIds) || interaction.memberPermissions.has('Administrator'))) {
+        return await interaction.editReply({
+            embeds: [
+                new EmbedBuilder()
+                    .setColor(Colors.Red)
+                    .setTitle('Error.')
+                    .setDescription('You are not authorized to run this command.')
+                    .setThumbnail(logos.warning)
+                    .setTimestamp()
+                    .setFooter({ text: 'Spy' })
+            ]
+        });
+    };
 
     const user = interaction.options.getUser('member', true);
     const message = interaction.options.getString('message');
@@ -57,7 +78,7 @@ export async function execute(interaction) {
                     .setColor(Colors.Red)
                     .setTitle('Error.')
                     .setDescription('Cannot send an empty message.')
-                    .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
+                    .setThumbnail(logos.warning)
                     .setTimestamp()
                     .setFooter({ text: 'Spy' })
             ]
@@ -75,13 +96,13 @@ export async function execute(interaction) {
                         .setColor(Colors.Yellow)
                         .setTitle(`Error.`)
                         .setDescription(`Cannot send a message to <@${user.id}> because the user has this bot blocked.`)
-                        .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
+                        .setThumbnail(logos.warning)
                         .setTimestamp()
                         .setFooter({ text: 'Spy' })
                 ]
             });
-        }
-    }
+        };
+    };
 
     return await interaction.followUp({
         embeds: [
@@ -89,9 +110,9 @@ export async function execute(interaction) {
                 .setColor(Colors.Green)
                 .setTitle(`Direct message sent.`)
                 .setDescription(`Successfully sent a direct message to <@${user.id}>.`)
-                .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
+                .setThumbnail(logos.checkmark)
                 .setTimestamp()
                 .setFooter({ text: 'Spy' })
         ]
     });
-}
+};

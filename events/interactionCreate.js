@@ -1,4 +1,4 @@
-import { Events, EmbedBuilder } from 'discord.js';
+import { Events, EmbedBuilder, Colors } from 'discord.js';
 
 export const name = Events.InteractionCreate;
 export async function execute(interaction) {
@@ -8,10 +8,10 @@ export async function execute(interaction) {
 		if (!command) {
 			console.error(`No command matching ${interaction.commandName} was found.`);
 			return;
-		}
+		};
 
 		const embed = new EmbedBuilder()
-			.setColor(0xFF0000)
+			.setColor(Colors.Red)
 			.setTitle('Error.')
 			.setDescription(`An error has occured while executing this command.\nCheck logs for more information.`)
 			.setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
@@ -29,4 +29,4 @@ export async function execute(interaction) {
 			};
 		};
 	};
-}
+};

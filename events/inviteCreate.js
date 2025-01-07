@@ -2,14 +2,20 @@ import { Events, EmbedBuilder } from 'discord.js';
 
 export const name = Events.InviteCreate;
 export async function execute(invite) {
-    const session = invite.client.session;
-    const result = await session.sql(`select settingValue from serverLogsChannelSetting where guildId = ${invite.guild.id};`).execute();
-    const logsChannelId = result.fetchOne()[0];
+    const knex = await invite.client.knex;
+    const setting = await knex('serverLogsChannelSetting')
+        .select('*')
+        .where('guildId', invite.guild.id)
+        .first();
+
+    if (!setting) return;
+
+    const logsChannelId = setting.settingValue;
 
     let inviteExp = Math.round(invite.expiresTimestamp / 1000);
 
     if (inviteExp > Math.round(invite.createdTimestamp / 1000)) { inviteExp = `<t:${inviteExp}:f>`; }
-    else { inviteExp = `Doesn't expire`; }
+    else { inviteExp = `Doesn't expire` };
 
     const embed = new EmbedBuilder()
         .setColor(2829617)
@@ -18,7 +24,7 @@ export async function execute(invite) {
         .setTimestamp()
         .setFooter({ text: `Spy Moderation` });
 
-    const channel = invite.guild.channels.cache.get(logsChannelId);
+    const channel = await invite.guild.channels.cache.get(logsChannelId);
 
     return await channel.send({ embeds: [embed] });
 };

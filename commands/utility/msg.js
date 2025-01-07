@@ -1,8 +1,8 @@
-import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, Colors, MessageFlags } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
     .setName('msg')
-    .setDescription('Send a message to the channel.')
+    .setDescription('[DEV] Send a message to the channel.')
     .addStringOption(option => option
         .setName('channel_id')
         .setDescription('ID of the channel you want to send the message to.')
@@ -22,7 +22,7 @@ export async function execute(interaction) {
         const channel = interaction.client.channels.cache.get(id);
 
         await channel.send(content);
-        return await interaction.reply({ content: 'Sent!', ephemeral: true });
+        return await interaction.reply({ content: 'Sent!', flags: MessageFlags.Ephemeral });
     } else {
         const mbed = new EmbedBuilder()
             .setColor(Colors.Red)
@@ -32,6 +32,6 @@ export async function execute(interaction) {
             .setTimestamp()
             .setFooter({ text: 'Spy' });
 
-        return await interaction.reply({ embeds: [mbed] });
+        return await interaction.reply({ embeds: [mbed], flags: MessageFlags.Ephemeral });
     }
 }

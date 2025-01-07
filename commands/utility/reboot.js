@@ -3,7 +3,7 @@ import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
 export const category = 'utility';
 export const data = new SlashCommandBuilder()
     .setName('reboot')
-    .setDescription('Reboot the bot and reload all components.');
+    .setDescription('[DEV] Reboot the bot.');
 export async function execute(interaction) {
     await interaction.deferReply();
     const ownerId = process.env.OWNER_ID;
