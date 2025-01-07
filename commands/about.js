@@ -35,7 +35,7 @@ export async function execute(interaction) {
             new EmbedBuilder()
                 .setColor(Colors.Green)
                 .setTitle('Spy Information')
-                .setDescription('Spy statistics and information. The bot repository can be found [here](https://github.com/PleasedontslammykeyboarddfsdoijfwR/discord-spy-bot).')
+                .setDescription('Spy statistics and information. The bot repository can be found [here](https://github.com/stolarchukboris/discord-spy-bot).')
                 .setFields([
                     {
                         name: "General Stats",
