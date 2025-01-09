@@ -48,23 +48,49 @@ const rest = new REST().setToken(token);
 // and deploy your commands!
 (async () => {
 	try {
-		let data;
-		console.log(`Started refreshing ${commands.length} global application (/) commands.`);
+		/*console.log(`Deleting developer application commands...`);
 
-		data = await rest.put(
-			Routes.applicationCommands(clientId),
-			{ body: commands }
+		await rest.put(
+			Routes.applicationGuildCommands(clientId, guildId),
+			{ body: [] }
 		);
 
-		console.log(`Successfully reloaded ${data.length} global application (/) commands.`);
-		console.log(`Started refreshing ${devCommands.length} developer application (/) commands.`);
+		console.log(`Success.`);
+
+		await new Promise(resolve => setTimeout(resolve, 1_000));
+
+		console.log(`Deleting global application commands...`);
+
+		await rest.put(
+			Routes.applicationCommands(clientId),
+			{ body: [] }
+		);
+
+		console.log(`Success.`);
+
+		await new Promise(resolve => setTimeout(resolve, 1_000));*/
+
+		console.log(`Refreshing ${devCommands.length} developer application (/) commands.`);
+
+		let data;
 
 		data = await rest.put(
 			Routes.applicationGuildCommands(clientId, guildId),
 			{ body: devCommands }
 		);
 
-		console.log(`Successfully reloaded ${data.length} developer application (/) commands.`);
+		console.log(`Successfully refreshed ${data.length} commands.`);
+
+		await new Promise(resolve => setTimeout(resolve, 1_000));
+
+		console.log(`Refreshing ${commands.length} global application commands...`);
+
+		data = await rest.put(
+			Routes.applicationCommands(clientId),
+			{ body: commands }
+		);
+
+		console.log(`Successfully refreshed ${data.length} commands. Please reboot the bot.`);
 	} catch (error) {
 		// And of course, make sure you catch and log any errors!
 		console.error(error);

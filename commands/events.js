@@ -4,7 +4,7 @@ import { logos } from '../misc/logos.js';
 
 export const data = new SlashCommandBuilder()
     .setName('events')
-    .setDescription('[EO] Manage the community events.')
+    .setDescription('[EO+] Manage the community events.')
     .addSubcommand(subcommand => subcommand
         .setName('schedule')
         .setDescription('[EO+] Schedule the community event.')
@@ -29,7 +29,7 @@ export const data = new SlashCommandBuilder()
     )
     .addSubcommand(subcommand => subcommand
         .setName('start')
-        .setDescription('[EO] Start the scheduled event.')
+        .setDescription('[EO+] Start the scheduled event.')
         .addStringOption(option => option
             .setName('event_id')
             .setDescription('ID of the event to be started.')
@@ -42,7 +42,7 @@ export const data = new SlashCommandBuilder()
     )
     .addSubcommand(subcommand => subcommand
         .setName('conclude')
-        .setDescription('[EO] Conclude the scheduled event.')
+        .setDescription('[EO+] Conclude the scheduled event.')
         .addStringOption(option => option
             .setName('event_id')
             .setDescription('ID of the event to be concluded.')
@@ -55,7 +55,7 @@ export const data = new SlashCommandBuilder()
     )
     .addSubcommand(subcommand => subcommand
         .setName('cancel')
-        .setDescription('[EO] Cancel the scheduled event.')
+        .setDescription('[EO+] Cancel the scheduled event.')
         .addStringOption(option => option
             .setName('event_id')
             .setDescription('ID of the event to be cancelled.')
@@ -69,7 +69,7 @@ export const data = new SlashCommandBuilder()
     )
     .addSubcommandGroup(subcommandGroup => subcommandGroup
         .setName('update')
-        .setDescription('[EO] Update the event configuration.')
+        .setDescription('[EO+] Update the event configuration.')
         .addSubcommand(subcommand => subcommand
             .setName('time')
             .setDescription('Reschedule the event.')
@@ -118,6 +118,10 @@ export async function execute(interaction) {
         .select('*')
         .where('guildId', interaction.guild.id)
         .first();
+    const roleSetting = await knex('eventPingRoleSetting')
+        .select('*')
+        .where('guildId', interaction.guild.id)
+        .first();
 
     if (!channelSetting) {
         errorEmbed.setDescription(`Event announcements channel setting not configured.`);
@@ -125,6 +129,13 @@ export async function execute(interaction) {
         return await interaction.followUp({ embeds: [errorEmbed] });
     };
 
+    if (!roleSetting) {
+        errorEmbed.setDescription(`Event ping role not configured.`)
+
+        return await interaction.followUp({ embeds: [errorEmbed] });
+    };
+
+    const role = roleSetting.settingValue;
     const channel = await interaction.client.channels.cache.get(channelSetting.settingValue);
     const subcommand = interaction.options.getSubcommand();
     const subcommandsToCheck = ['start', 'conclude', 'cancel', 'time'];
@@ -134,6 +145,7 @@ export async function execute(interaction) {
             const event = await knex('communityEvents')
                 .select('*')
                 .where('eventId', eventId)
+                .andWhere('guildId', interaction.guild.id)
                 .first();
 
             if (!event) {
@@ -169,6 +181,7 @@ export async function execute(interaction) {
         const existingEvent = await knex('communityEvents')
             .select('*')
             .where('eventTime', time)
+            .andWhere('guildId', interaction.guild.id)
             .first();
 
         if (existingEvent) {
@@ -199,12 +212,12 @@ export async function execute(interaction) {
         const gameThumbnail = thumbnailResponse.data.data[0].imageUrl;
 
         await knex.raw(
-            `insert into communityEvents(eventId, eventHost, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime, reminded) values (?, ?, ?, ?, ?, ?, 0)`,
-            [eventId, interaction.user.id, gameUrl, gameName, gameThumbnail, time]
+            `insert into communityEvents(guildId, eventId, eventHost, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime, reminded) values (?, ?, ?, ?, ?, ?, ?, 0)`,
+            [interaction.guild.id, eventId, interaction.user.id, gameUrl, gameName, gameThumbnail, time]
         );
 
         const sentAnns = await channel.send({
-            content: `<@&1289909425368338505>`,
+            content: `<@&${role}>`,
             embeds: [
                 new EmbedBuilder()
                     .setColor(0x2B2D31)
@@ -263,7 +276,7 @@ export async function execute(interaction) {
         if (!annsMessage) return;
 
         await annsMessage.reply({
-            content: `<@&1289909425368338505>`,
+            content: `<@&${role}>`,
             embeds: [
                 new EmbedBuilder()
                     .setColor(0x2B2D31)
@@ -348,7 +361,7 @@ export async function execute(interaction) {
         if (!annsMessage) return;
 
         await annsMessage.reply({
-            content: `<@&1289909425368338505>`,
+            content: `<@&${role}>`,
             embeds: [
                 new EmbedBuilder()
                     .setColor(0x2B2D31)
@@ -395,10 +408,10 @@ export async function execute(interaction) {
             if (!annsMessage) return;
 
             await annsMessage.reply({
-                content: `<@&1289909425368338505>`,
+                content: `<@&${role}>`,
                 embeds: [
                     new EmbedBuilder()
-                        .setColor(2829617)
+                        .setColor(0x2B2D31)
                         .setTitle(`The scheduled event has been rescheduled.`)
                         .setDescription(`The scheduled event in ${gameName} has been rescheduled.\n\n**Please adjust your availability accordingly.**`)
                         .setFields(

@@ -4,7 +4,7 @@ import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
 export const category = 'utility';
 export const data = new SlashCommandBuilder()
     .setName('deploy')
-    .setDescription('[DEV] Manually deploy commands and restart.');
+    .setDescription('[DEV] Manually delete and re-deploy commands.');
 export async function execute(interaction) {
     await interaction.deferReply();
 
@@ -48,9 +48,6 @@ export async function execute(interaction) {
                 ]
             });
         });
-
-        await new Promise(resolve => setTimeout(resolve, 10000));
-        return process.exit();
     } else {
         const mbed = new EmbedBuilder()
             .setColor(Colors.Red)

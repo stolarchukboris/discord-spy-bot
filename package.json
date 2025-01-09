@@ -1,6 +1,6 @@
 {
   "name": "discord-spy-bot",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "spying",
   "type": "module",
   "exports": "./app.js",
@@ -42,12 +42,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PleasedontslammykeyboarddfsdoijfwR/discord-spy-bot.git"
+    "url": "git+https://github.com/stolarchukboris/discord-spy-bot.git"
   },
   "author": "stol",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/PleasedontslammykeyboarddfsdoijfwR/discord-spy-bot/issues"
+    "url": "https://github.com/stolarchukboris/discord-spy-bot/issues"
   },
-  "homepage": "https://github.com/PleasedontslammykeyboarddfsdoijfwR/discord-spy-bot#readme"
+  "homepage": "https://github.com/stolarchukboris/discord-spy-bot#readme"
 }

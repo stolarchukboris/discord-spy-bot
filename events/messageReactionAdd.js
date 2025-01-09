@@ -15,7 +15,10 @@ export async function execute(messageReaction) {
 		.select('*')
 		.where('guildId', messageReaction.message.guildId)
 		.first();
-	const minReactions = minReactionsSetting.settingValue ?? 3;
+
+	if (!minReactionsSetting) return;
+	
+	const minReactions = minReactionsSetting.settingValue;
 
 	if (messageReaction.emoji.name === '⭐' && messageReaction.count >= minReactions && messageReaction.message.channel.id !== channelId) {
 		const channel = await messageReaction.client.channels.cache.get(channelId);

@@ -1,4 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
+import { logos } from '../../misc/logos.js';
 
 export const category = 'utility';
 export const data = new SlashCommandBuilder()
@@ -13,19 +14,18 @@ export async function execute(interaction) {
             .setColor(Colors.Green)
             .setTitle(`Bot is rebooting...`)
             .setDescription(`Bot reboot is in progress. Please wait...`)
-            .setThumbnail('https://septik-komffort.ru/wp-content/uploads/2020/11/galochka_zel.png')
+            .setThumbnail(logos.checkmark)
             .setTimestamp()
             .setFooter({ text: 'Spy' });
 
         await interaction.editReply({ embeds: [mbed] });
-        await interaction.client.session.close();
         return process.exit();
     } else {
         const mbed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle(`Error.`)
             .setDescription(`You are not authorized to run this command.`)
-            .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
+            .setThumbnail(logos.warning)
             .setTimestamp()
             .setFooter({ text: 'Spy' });
 

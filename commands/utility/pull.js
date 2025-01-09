@@ -4,7 +4,7 @@ import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
 export const category = 'utility';
 export const data = new SlashCommandBuilder()
     .setName('pull')
-    .setDescription('[DEV] Pull latest changes from Git Main and restart.');
+    .setDescription('[DEV] Pull latest changes from Git Main.');
 export async function execute(interaction) {
     await interaction.deferReply();
 
@@ -47,9 +47,6 @@ export async function execute(interaction) {
                         .setFooter({ text: interaction.guild.name })
                 ]
             });
-
-            await new Promise(resolve => setTimeout(resolve, 30000));
-            return process.exit();
         });
     } else {
         const mbed = new EmbedBuilder()
