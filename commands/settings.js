@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
-import { logos } from '../misc/logos.js';
-import { settingsEnum } from '../misc/settingsEnum.js';
+import logos from '../misc/logos.js';
+import settingsEnum from '../misc/settingsEnum.js';
 
 export const data = new SlashCommandBuilder()
     .setName('settings')

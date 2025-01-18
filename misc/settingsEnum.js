@@ -1,4 +1,4 @@
-export const settingsEnum = [
+export default [
     { name: 'Server logs channel ID', value: 'serverLogsChannelSetting' },
     { name: 'Starboard channel ID', value: 'starboardChannelSetting' },
     { name: 'Starboard reactions minimum', value: 'starboardReactionsMin' },

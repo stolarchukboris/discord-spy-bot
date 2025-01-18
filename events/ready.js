@@ -1,6 +1,6 @@
 import { Events, EmbedBuilder, WebhookClient, Colors } from 'discord.js';
 import { eventReminder } from '../misc/function.js';
-import { logos } from '../misc/logos.js';
+import logos from '../misc/logos.js';
 
 const whUrl = process.env.WH_URL;
 const guildId = process.env.GUILD_ID;

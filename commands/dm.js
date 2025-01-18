@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, Colors } from 'discord.js';
-import { logos } from '../misc/logos.js';
+import logos from '../misc/logos.js';
 
 export const data = new SlashCommandBuilder()
     .setName('dm')
