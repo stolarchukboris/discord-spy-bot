@@ -1,7 +1,7 @@
 {
   "name": "discord-ts-bot",
-  "version": "1.0.0",
-  "description": "",
+  "version": "4.0.0",
+  "description": "spying",
   "main": "build/src/index.js",
   "type": "module",
   "scripts": {
