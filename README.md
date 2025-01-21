@@ -3,4 +3,3 @@ It's called Spy because initially I only wanted this bot to retrieve information
 
 This project helps me learn JavaScript (especially Discord.js module, and many others), TypeScript and Git.
 Shoutout to [Async](https://github.com/AstroHWeston) for the help and code samples.
-aa
