@@ -88,59 +88,6 @@ export default async (spyBot: spyBot, interaction: ChatInputCommandInteraction) 
                     ]
                 });
             }
-
-            const errorEmbed = new EmbedBuilder()
-                .setColor(Colors.Red)
-                .setTitle('Error.')
-                .setThumbnail(logos.warning)
-                .setTimestamp()
-                .setFooter({ text: 'Spy' });
-            const channelSetting = await spyBot.knex('eventAnnsChannelSetting')
-                .select('*')
-                .where('guildId', interaction.guild.id)
-                .first();
-            const roleSetting = await spyBot.knex('eventPingRoleSetting')
-                .select('*')
-                .where('guildId', interaction.guild.id)
-                .first();
-
-            if (!channelSetting) {
-                errorEmbed.setDescription(`Event announcements channel setting not configured.`);
-
-                return await interaction.followUp({ embeds: [errorEmbed] });
-            };
-
-            if (!roleSetting) {
-                errorEmbed.setDescription(`Event ping role not configured.`)
-
-                return await interaction.followUp({ embeds: [errorEmbed] });
-            };
-
-            const subcommand = interaction.options.getSubcommand();
-            const subcommandsToCheck = ['start', 'conclude', 'cancel', 'time'];
-
-            if (subcommandsToCheck.includes(subcommand)) {
-                const eventId = interaction.options.getString('eventId', true);
-                const event = await spyBot.knex('communityEvents')
-                    .select('*')
-                    .where('eventId', eventId)
-                    .andWhere('guildId', (interaction.guild as Guild).id)
-                    .first();
-
-                if (!event) {
-                    errorEmbed.setDescription(`Event with ID \`${eventId}\` has not been found in the database.`);
-
-                    return await interaction.followUp({ embeds: [errorEmbed] });
-                };
-
-                if (event.eventStatus === 2 && (subcommand === 'start' || subcommand === 'update')) {
-                    errorEmbed.setDescription('This event has already been concluded.');
-                } else if (event.eventStatus === 1 && subcommand === 'conclude') {
-                    errorEmbed.setDescription('This event has not been started yet.');
-                }
-
-                return await interaction.followUp({ embeds: [errorEmbed] });
-            }
         }
 
         try {

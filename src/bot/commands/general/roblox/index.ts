@@ -6,6 +6,7 @@ export default class robloxCommand implements botCommand {
     name: Lowercase<string> = "roblox";
     description: string = "Interact with Roblox API.";
     spyBot: spyBot;
+    options = [];
 
     constructor(spyBot: spyBot) {
         this.spyBot = spyBot;
