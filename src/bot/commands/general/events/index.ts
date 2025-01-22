@@ -7,7 +7,6 @@ export default class eventsCommand implements botCommand {
     description: string = "[EO+] Manage community events in this server.";
     spyBot: spyBot;
     eo = true;
-    options = [];
 
     constructor(spyBot: spyBot) {
         this.spyBot = spyBot;

@@ -19,7 +19,17 @@ export default class Bot extends Client {
     spyBot: spyBot;
 
     constructor(spyBot: spyBot) {
-        super({ intents: [IntentsBitField.Flags.Guilds] });
+        super({
+            intents: [
+                IntentsBitField.Flags.Guilds,
+                IntentsBitField.Flags.GuildInvites,
+                IntentsBitField.Flags.GuildModeration,
+                IntentsBitField.Flags.GuildMessages,
+                IntentsBitField.Flags.MessageContent,
+                IntentsBitField.Flags.GuildMessageReactions,
+                IntentsBitField.Flags.DirectMessages
+            ]
+        });
 
         this.spyBot = spyBot;
 
@@ -27,13 +37,12 @@ export default class Bot extends Client {
 
         this.commands.push().then(() => {
             console.log('Commands pushed.');
+            this.login(this.spyBot.env.TOKEN);
         });
 
         this.events.load().then(() => {
             console.log('Events loaded.');
         });
-
-        this.login(this.spyBot.env.TOKEN);
     }
 
     commands = {
@@ -140,7 +149,6 @@ export default class Bot extends Client {
                     function: eventFunction.bind(null, this.spyBot)
                 });
             }
-
             return events;
         },
 
