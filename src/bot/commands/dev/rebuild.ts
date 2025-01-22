@@ -16,7 +16,7 @@ export default class rebuildCommand implements botCommand {
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
         await interaction.deferReply();
 
-        spawn('npm run coldstart', { shell: true });
+        spawn('pnpm run rebuild', { shell: true });
 
         await interaction.editReply({
             embeds: [

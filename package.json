@@ -1,14 +1,15 @@
 {
   "name": "discord-ts-bot",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "spying",
   "main": "build/src/index.js",
   "type": "module",
   "scripts": {
     "build": "rmdir build /s /q && tsc",
-    "coldstart": "npm run build && npx pm2 start build/src/index.js -f",
-    "start": " npx pm2 start build/src/index.js -f",
-    "stop": "npx pm2 delete build/src/index.js"
+    "coldstart": "pnpm run build && pm2 start build/src/index.js -f",
+    "start": "pm2 start build/src/index.js -f",
+    "stop": "pm2 delete build/src/index.js",
+    "rebuild": "pm2 delete build/src/index.js && pnpm run coldstart"
   },
   "keywords": [],
   "author": "",
