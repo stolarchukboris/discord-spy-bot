@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Colors, EmbedBuilder, Guild, GuildMemberRoleManager, PermissionsBitField } from "discord.js";
+import { ChatInputCommandInteraction, Colors, EmbedBuilder, GuildMemberRoleManager, PermissionsBitField } from "discord.js";
 import { botCommand } from "../../types/global";
 import { spyBot } from "../../index.js";
 import logos from '../../misc/logos.js';
