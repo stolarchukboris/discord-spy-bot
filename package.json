@@ -1,6 +1,6 @@
 {
   "name": "discord-spy-bot",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "spying",
   "main": "build/src/index.js",
   "type": "module",
@@ -9,7 +9,7 @@
     "coldstart": "pnpm run build && pm2 start build/src/index.js -f",
     "start": "pm2 start build/src/index.js -f",
     "stop": "pm2 delete build/src/index.js",
-    "rebuild": "pnpm run build && pm2 restart build/src/index.js"
+    "rebuild": "pnpm run build && pm2 restart build/src/index.js --update-env"
   },
   "author": "stolarchukboris",
   "license": "MIT",

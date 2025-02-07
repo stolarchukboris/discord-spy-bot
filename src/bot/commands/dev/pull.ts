@@ -26,7 +26,7 @@ export default class pullCommand implements botCommand {
                     new EmbedBuilder()
                         .setColor(Colors.Red)
                         .setTitle('stderr')
-                        .setDescription('There are some warnings or information that console gave')
+                        .setDescription('Console has returned some warnings or information.')
                         .setFields([
                             { name: 'Output', value: `\`\`\`\n${data}\`\`\`` },
                         ])
@@ -44,7 +44,7 @@ export default class pullCommand implements botCommand {
                     new EmbedBuilder()
                         .setColor(Colors.Blurple)
                         .setTitle('Pull Operation')
-                        .setDescription('The command is being executed, watch output for results.')
+                        .setDescription('Pulling from Git, watch output for results...')
                         .setFields([
                             { name: 'Output', value: `\`\`\`\n${data}\`\`\`` },
                         ])
