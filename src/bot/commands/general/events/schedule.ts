@@ -64,7 +64,7 @@ export default class eventsCommand implements botCommand {
 
         const role = roleSetting.settingValue;
         const channel = interaction.client.channels.cache.get(channelSetting.settingValue) as GuildChannel;
-        if (!channel.isTextBased()) return;
+        if (!channel?.isTextBased()) return;
 
         const gameUrl = interaction.options.getString('game_url', true);
         const time = interaction.options.getInteger('time', true);
@@ -106,7 +106,7 @@ export default class eventsCommand implements botCommand {
         const gameThumbnail = thumbnailResponse.data.data[0].imageUrl;
 
         await this.spyBot.knex.raw(
-            `insert into communityEvents(guildId, eventId, eventHost, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime, reminded) values (?, ?, ?, ?, ?, ?, ?, 0)`,
+            `insert into communityEvents(guildId, eventId, eventHost, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime) values (?, ?, ?, ?, ?, ?, ?)`,
             [interaction.guild.id, eventId, interaction.user.id, gameUrl, gameName, gameThumbnail, time]
         );
 

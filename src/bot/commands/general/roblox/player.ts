@@ -2,6 +2,7 @@ import { botCommand } from "../../../../types/global.js";
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption, ColorResolvable } from 'discord.js';
 import axios from 'axios';
+import logos from '../../../../misc/logos.js';
 
 export default class robloxCommand implements botCommand {
     name: Lowercase<string> = "player";
@@ -24,7 +25,7 @@ export default class robloxCommand implements botCommand {
         const errorEmbed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('Error.')
-            .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
+            .setThumbnail(logos.warning)
             .setTimestamp()
             .setFooter({ text: 'Spy' });
         const key = this.spyBot.env.OPEN_CLOUD_API_KEY;
@@ -49,8 +50,15 @@ export default class robloxCommand implements botCommand {
         });
         const responseUser = await axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}`, { headers: { 'x-api-key': key } });
         const desc = responseUser.data.about || 'No description provided.';
-        const responseOperation = await axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}:generateThumbnail?shape=SQUARE`, { headers: { 'x-api-key': key } });
-        const pfpURL = responseOperation.data.response.imageUri;
+
+        let pfpURL;
+        try {
+            const responseOperation = await axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}:generateThumbnail?shape=SQUARE`, { headers: { 'x-api-key': key } });
+            pfpURL = responseOperation.data.response.imageUri;
+        } catch (error) {
+            pfpURL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Not_allowed.svg/1200px-Not_allowed.svg.png';
+        }
+
         let color;
 
         let presenceType = responsePresence.data.userPresences[0].userPresenceType;
@@ -68,7 +76,7 @@ export default class robloxCommand implements botCommand {
                     .setColor(color as ColorResolvable)
                     .setTitle(`Roblox player information.`)
                     .setDescription(`General information on [${responseUser.data.name} (${responseUser.data.displayName})](https://www.roblox.com/users/${userid}/profile).`)
-                    .setThumbnail(`${pfpURL}`)
+                    .setThumbnail(pfpURL)
                     .addFields(
                         { name: 'Username:', value: `${responseUser.data.name}`, inline: true },
                         { name: 'ID:', value: `${responseUser.data.id}`, inline: true },
