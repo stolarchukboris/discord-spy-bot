@@ -80,7 +80,7 @@ export default class robloxCommand implements botCommand {
                     .addFields(
                         { name: 'Username:', value: `${responseUser.data.name}`, inline: true },
                         { name: 'ID:', value: `${responseUser.data.id}`, inline: true },
-                        { name: 'Is Premium:', value: `${responseUser.data.premium}`, inline: true },
+                        { name: 'Is Premium:', value: `${responseUser.data.premium ?? false}`, inline: true },
                         { name: 'Status:', value: `${presenceType}`, inline: true },
                         { name: 'Last Online:', value: `<t:${Math.floor(Date.parse(new Date(lastOnline).toString()) / 1000)}:f>`, inline: true },
                         { name: 'Created:', value: `<t:${Math.floor(Date.parse(responseUser.data.createTime) / 1000)}:f>`, inline: true },
