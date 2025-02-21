@@ -16,7 +16,7 @@ export default class pullCommand implements botCommand {
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
         await interaction.deferReply();
 
-        const { stdout, stderr } = spawn('git pull', { shell: true });
+        const { stdout, stderr } = spawn('git pull', { shell: true, windowsHide: true });
 
         stderr.on('data', async (data) => {
             console.log(`stderr: ${data}`);

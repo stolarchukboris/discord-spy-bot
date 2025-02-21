@@ -31,12 +31,12 @@ export default class aboutCommand implements botCommand {
         let gitHash;
 
         try {
-            gitHash = execSync('git rev-parse HEAD')
+            gitHash = execSync('git rev-parse HEAD', { windowsHide: true })
                 .toString()
                 .trim();
         } catch (error) {
             gitHash = 'Unknown.';
-        };
+        }
 
         await interaction.editReply({
             embeds: [
