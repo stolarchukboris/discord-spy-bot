@@ -1,6 +1,7 @@
 import { botCommand } from "../../../../types/global.js";
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption } from 'discord.js';
+import { errorEmbed } from "../../../../misc/function.js";
 import axios from 'axios';
 
 export default class robloxCommand implements botCommand {
@@ -21,12 +22,6 @@ export default class robloxCommand implements botCommand {
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
         await interaction.deferReply();
 
-        const errorEmbed = new EmbedBuilder()
-            .setColor(Colors.Red)
-            .setTitle('Error.')
-            .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Noto_Emoji_Oreo_2757.svg/1200px-Noto_Emoji_Oreo_2757.svg.png')
-            .setTimestamp()
-            .setFooter({ text: 'Spy' });
         const key = this.spyBot.env.OPEN_CLOUD_API_KEY;
         const name = interaction.options.getString('name', true);
 

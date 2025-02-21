@@ -12,7 +12,7 @@ declare interface botCommand {
     isIndexer?: boolean;
     spyBot: spyBot;
 
-    execute(interaction: ChatInputCommandInteraction): Promise<void>;
+    execute(interaction: ChatInputCommandInteraction, ...args): Promise<void>;
     autocomplete?(interaction: AutocompleteInteraction): Promise<void>;
 }
 

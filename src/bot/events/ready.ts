@@ -24,7 +24,7 @@ export default async (spyBot: spyBot, client: Client) => {
     }
 
     while (true) {
-        await eventReminder(spyBot, client);
+        await eventReminder(spyBot);
 
         await new Promise(resolve => setTimeout(resolve, 1_000));
     }

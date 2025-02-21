@@ -1,6 +1,7 @@
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, GuildChannel, SlashCommandStringOption, SlashCommandIntegerOption } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
+import { errorEmbed } from "../../../../misc/function.js";
 import logos from '../../../../misc/logos.js';
 import axios from 'axios';
 
@@ -24,43 +25,14 @@ export default class eventsCommand implements botCommand {
         new SlashCommandStringOption()
             .setName('comment')
             .setDescription('Optional comment about the upcoming event.')
-    ]
+    ];
 
     constructor(spyBot: spyBot) {
         this.spyBot = spyBot;
     }
 
-    async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
+    async execute(interaction: ChatInputCommandInteraction<"cached">, channelSetting: any, roleSetting: any): Promise<void> {
         await interaction.deferReply();
-
-        const errorEmbed = new EmbedBuilder()
-            .setColor(Colors.Red)
-            .setTitle('Error.')
-            .setThumbnail(logos.warning)
-            .setTimestamp()
-            .setFooter({ text: 'Spy' });
-        const channelSetting = await this.spyBot.knex('eventAnnsChannelSetting')
-            .select('*')
-            .where('guildId', interaction.guild.id)
-            .first();
-        const roleSetting = await this.spyBot.knex('eventPingRoleSetting')
-            .select('*')
-            .where('guildId', interaction.guild.id)
-            .first();
-
-        if (!channelSetting) {
-            errorEmbed.setDescription(`Event announcements channel setting not configured.`);
-
-            await interaction.followUp({ embeds: [errorEmbed] });
-            return;
-        };
-
-        if (!roleSetting) {
-            errorEmbed.setDescription(`Event ping role not configured.`)
-
-            await interaction.followUp({ embeds: [errorEmbed] });
-            return;
-        };
 
         const role = roleSetting.settingValue;
         const channel = interaction.client.channels.cache.get(channelSetting.settingValue) as GuildChannel;
@@ -69,26 +41,29 @@ export default class eventsCommand implements botCommand {
         const gameUrl = interaction.options.getString('game_url', true);
         const time = interaction.options.getInteger('time', true);
         const duration = interaction.options.getString('duration') ?? 'Not specified.';
-        const comment = interaction.options.getString('comment') ?? '';
+        const comment = interaction.options.getString('comment');
         const existingEvent = await this.spyBot.knex('communityEvents')
             .select('*')
-            .where('eventTime', time)
+            .where('eventTime', '>=', time - 3600)
+            .andWhere('eventTime', '<=', time + 3600)
             .andWhere('guildId', interaction.guild.id)
             .first();
 
         if (existingEvent) {
-            errorEmbed.setDescription(`There's already an event scheduled for this time.`);
+            errorEmbed
+                .setDescription(`There is already an event scheduled for this time.`)
+                .setFields({ name: 'Event at this time', value: existingEvent.eventId });
 
             await interaction.followUp({ embeds: [errorEmbed] });
             return;
-        };
+        }
 
         if (time <= Math.round(Date.now() / 1000)) {
             errorEmbed.setDescription(`Cannot schedule an event in the past.`);
 
             await interaction.followUp({ embeds: [errorEmbed] });
             return;
-        };
+        }
 
         const eventId = crypto.randomUUID();
         const placeid = gameUrl.split('/')[4];
@@ -96,7 +71,7 @@ export default class eventsCommand implements botCommand {
         const gameName = gameResponse.data.Name;
         let eventDesc;
 
-        if (comment === '') {
+        if (!comment) {
             eventDesc = `**Event duration**: ${duration}\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**React with :white_check_mark: if you're planning to attend this event.**`;
         } else {
             eventDesc = `**Event duration**: ${duration}\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**Note from host:** ${comment}\n\n**React with :white_check_mark: if you're planning to attend this event.**`;
@@ -105,10 +80,16 @@ export default class eventsCommand implements botCommand {
         const thumbnailResponse = await axios.get(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeid}&returnPolicy=PlaceHolder&size=150x150&format=Webp&isCircular=false`);
         const gameThumbnail = thumbnailResponse.data.data[0].imageUrl;
 
-        await this.spyBot.knex.raw(
-            `insert into communityEvents(guildId, eventId, eventHost, eventGameUrl, eventGameName, gameThumbnailUrl, eventTime) values (?, ?, ?, ?, ?, ?, ?)`,
-            [interaction.guild.id, eventId, interaction.user.id, gameUrl, gameName, gameThumbnail, time]
-        );
+        await this.spyBot.knex('communityEvents')
+            .insert({
+                eventId: eventId,
+                guildId: interaction.guild.id,
+                eventHost: interaction.user.id,
+                eventGameUrl: gameUrl,
+                eventGameName: gameName,
+                gameThumbnailUrl: gameThumbnail,
+                eventTime: time
+            });
 
         const sentAnns = await channel.send({
             content: `<@&${role}>`,

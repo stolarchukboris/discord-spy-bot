@@ -1,6 +1,7 @@
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, GuildChannel, SlashCommandStringOption } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
+import { eventCheck, errorEmbed } from "../../../../misc/function.js";
 import logos from '../../../../misc/logos.js';
 
 export default class eventsCommand implements botCommand {
@@ -22,68 +23,8 @@ export default class eventsCommand implements botCommand {
         this.spyBot = spyBot;
     }
 
-    async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
+    async execute(interaction: ChatInputCommandInteraction<"cached">, channelSetting: any, roleSetting: any): Promise<void> {
         await interaction.deferReply();
-
-        async function eventCheck(spyBot: spyBot, eventId: string, status = 0) {
-                const event = await spyBot.knex('communityEvents')
-                    .select('*')
-                    .where('eventId', eventId)
-                    .andWhere('guildId', interaction.guild.id)
-                    .first();
-
-                if (!event) {
-                    errorEmbed.setDescription(`Event with ID \`${eventId}\` has not been found in the database.`);
-
-                    return await interaction.followUp({ embeds: [errorEmbed] });
-                }
-
-                if (event.eventStatus === status) {
-                    switch (status) {
-                        case 1:
-                            errorEmbed.setDescription('This event has not been started yet.')
-
-                            break;
-                        case 2:
-                            errorEmbed.setDescription('This event has already been concluded.')
-
-                            break;
-                    }
-
-                    return await interaction.followUp({ embeds: [errorEmbed] });
-                }
-
-                return event;
-        }
-
-        const errorEmbed = new EmbedBuilder()
-            .setColor(Colors.Red)
-            .setTitle('Error.')
-            .setThumbnail(logos.warning)
-            .setTimestamp()
-            .setFooter({ text: 'Spy' });
-        const channelSetting = await this.spyBot.knex('eventAnnsChannelSetting')
-            .select('*')
-            .where('guildId', interaction.guild.id)
-            .first();
-        const roleSetting = await this.spyBot.knex('eventPingRoleSetting')
-            .select('*')
-            .where('guildId', interaction.guild.id)
-            .first();
-
-        if (!channelSetting) {
-            errorEmbed.setDescription(`Event announcements channel setting not configured.`);
-
-            await interaction.followUp({ embeds: [errorEmbed] });
-            return;
-        };
-
-        if (!roleSetting) {
-            errorEmbed.setDescription(`Event ping role not configured.`)
-
-            await interaction.followUp({ embeds: [errorEmbed] });
-            return;
-        };
 
         const role = roleSetting.settingValue;
         const channel = interaction.client.channels.cache.get(channelSetting.settingValue) as GuildChannel;
@@ -91,7 +32,7 @@ export default class eventsCommand implements botCommand {
 
         const eventId = interaction.options.getString('event_id', true);
         const join = interaction.options.getString('join');
-        const event = await eventCheck(this.spyBot, eventId, 2);
+        const event = await eventCheck(this.spyBot, interaction, errorEmbed, eventId, 2);
 
         await this.spyBot.knex('communityEvents')
             .update({ eventStatus: 2 })

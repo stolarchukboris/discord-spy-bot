@@ -1,5 +1,5 @@
 import { spyBot } from "../../../../index.js";
-import { ApplicationCommandOptionBase, ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
 
 export default class eventsCommand implements botCommand {
@@ -12,7 +12,7 @@ export default class eventsCommand implements botCommand {
         this.spyBot = spyBot;
     }
 
-    execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
+    execute(interaction: ChatInputCommandInteraction<"cached">, channelSetting: any, roleSetting: any): Promise<void> {
         return Promise.resolve(undefined);
     }
 }

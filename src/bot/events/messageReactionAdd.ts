@@ -76,7 +76,7 @@ export default async (spyBot: spyBot, messageReaction: MessageReaction) => {
                 await knex('starboardMessages')
                     .insert({
                         originMessage: messageReaction.message.id,
-                        starboardMessage: await msg.id,
+                        starboardMessage: msg.id,
                         amountOfReactions: messageReaction.count
                     });
             } else {

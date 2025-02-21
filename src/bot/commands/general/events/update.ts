@@ -1,6 +1,7 @@
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, GuildChannel, ColorResolvable, SlashCommandStringOption, SlashCommandIntegerOption } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
+import { eventCheck, errorEmbed } from "../../../../misc/function.js";
 import logos from '../../../../misc/logos.js';
 
 export default class eventsCommand implements botCommand {
@@ -23,140 +24,95 @@ export default class eventsCommand implements botCommand {
         this.spyBot = spyBot;
     }
 
-    async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
+    async execute(interaction: ChatInputCommandInteraction<"cached">, channelSetting: any, roleSetting: any): Promise<void> {
         await interaction.deferReply();
-
-        async function eventCheck(spyBot: spyBot, eventId: string, status = 0) {
-            const event = await spyBot.knex('communityEvents')
-                .select('*')
-                .where('eventId', eventId)
-                .andWhere('guildId', interaction.guild.id)
-                .first();
-
-            if (!event) {
-                errorEmbed.setDescription(`Event with ID \`${eventId}\` has not been found in the database.`);
-
-                return await interaction.followUp({ embeds: [errorEmbed] });
-            }
-
-            if (event.eventStatus === status) {
-                switch (status) {
-                    case 1:
-                        errorEmbed.setDescription('This event has not been started yet.')
-
-                        break;
-                    case 2:
-                        errorEmbed.setDescription('This event has already been concluded.')
-
-                        break;
-                }
-
-                return await interaction.followUp({ embeds: [errorEmbed] });
-            }
-
-            return event;
-        }
-
-        const errorEmbed = new EmbedBuilder()
-            .setColor(Colors.Red)
-            .setTitle('Error.')
-            .setThumbnail(logos.warning)
-            .setTimestamp()
-            .setFooter({ text: 'Spy' });
-        const channelSetting = await this.spyBot.knex('eventAnnsChannelSetting')
-            .select('*')
-            .where('guildId', interaction.guild.id)
-            .first();
-        const roleSetting = await this.spyBot.knex('eventPingRoleSetting')
-            .select('*')
-            .where('guildId', interaction.guild.id)
-            .first();
-
-        if (!channelSetting) {
-            errorEmbed.setDescription(`Event announcements channel setting not configured.`);
-
-            await interaction.followUp({ embeds: [errorEmbed] });
-            return;
-        };
-
-        if (!roleSetting) {
-            errorEmbed.setDescription(`Event ping role not configured.`)
-
-            await interaction.followUp({ embeds: [errorEmbed] });
-            return;
-        };
-
+        
+        const eventId = interaction.options.getString('event_id', true);
+        const event = await eventCheck(this.spyBot, interaction, errorEmbed, eventId, 2);
         const role = roleSetting.settingValue;
         const channel = interaction.client.channels.cache.get(channelSetting.settingValue) as GuildChannel;
         if (!channel.isTextBased()) return;
 
-        const eventId = interaction.options.getString('event_id', true);
-        const event = await eventCheck(this.spyBot, eventId, 2);
+        const time = interaction.options.getInteger('new_time', true);
+        const eventAtThisTime = await this.spyBot.knex('communityEvents')
+            .select('*')
+            .where('eventTime', '>=', time - 3600)
+            .andWhere('eventTime', '<=', time + 3600)
+            .andWhere('guildId', interaction.guild.id)
+            .first();
 
-            const time = interaction.options.getInteger('new_time', true);
+        if ((event.eventTime == time) || (time <= Math.floor(Date.now() / 1000))) {
+            errorEmbed.setDescription(event.eventTime == time ? 'The event time must be changed when using this command.' : 'The event cannot be rescheduled to the past.');
 
-            if (event.eventTime === time) {
-                errorEmbed.setDescription(`New time cannot be the same as the old time.`);
+            await interaction.followUp({ embeds: [errorEmbed] });
+            return;
+        } else if (eventAtThisTime) {
+            errorEmbed
+                .setDescription('Schedule conflict. There is already an event scheduled for this time.')
+                .setFields({ name: 'Event at this time', value: eventAtThisTime.eventId });
 
-                await interaction.followUp({ embeds: [errorEmbed] });
-                return;
-            };
+            await interaction.followUp({ embeds: [errorEmbed] });
+            return;
+        }
 
-            await this.spyBot.knex('communityEvents')
-                .update({ eventTime: time })
-                .where('eventId', eventId);
+        await this.spyBot.knex('communityEvents')
+            .update({
+                eventTime: time,
+                reminded: false
+            })
+            .where('eventId', eventId);
 
-            const gameName = event.eventGameName;
-            const gameThumbnail = event.gameThumbnailUrl;
-            const annsMessage = channel.messages.cache.get(event.annsMessageId);
-            if (!annsMessage) return;
+        const gameName = event.eventGameName;
+        const gameThumbnail = event.gameThumbnailUrl;
+        const annsMessage = channel.messages.cache.get(event.annsMessageId);
+        if (!annsMessage) return;
 
-            await annsMessage.reply({
-                content: `<@&${role}>`,
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor(0x2B2D31)
-                        .setTitle(`The scheduled event has been rescheduled.`)
-                        .setDescription(`The scheduled event in ${gameName} has been rescheduled.\n\n**Please adjust your availability accordingly.**`)
-                        .setFields(
-                            { name: 'New Time', value: `<t:${time}:f>`, inline: true },
-                            { name: 'Event ID', value: `${eventId}`, inline: true }
-                        )
-                        .setThumbnail(gameThumbnail)
-                        .setTimestamp()
-                        .setFooter({ text: 'Spy' })
-                ]
-            });
+        await annsMessage.reply({
+            content: `<@&${role}>`,
+            embeds: [
+                new EmbedBuilder()
+                    .setColor(0x2B2D31)
+                    .setTitle(`The event has been rescheduled.`)
+                    .setDescription(`The event in ${gameName} has been rescheduled.\n\n**Please adjust your availability accordingly.**`)
+                    .setFields(
+                        { name: 'New Time', value: `<t:${time}:f>`, inline: true },
+                        { name: 'Event ID', value: `${eventId}`, inline: true }
+                    )
+                    .setThumbnail(gameThumbnail)
+                    .setTimestamp()
+                    .setFooter({ text: 'Spy' })
+            ]
+        });
 
-            await annsMessage.edit({
-                content: annsMessage.content,
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor(annsMessage.embeds[0].hexColor as ColorResolvable)
-                        .setTitle(`Event in ${gameName} has been scheduled on <t:${time}:f>!`)
-                        .setFields(annsMessage.embeds[0].fields)
-                        .setDescription(annsMessage.embeds[0].description)
-                        .setThumbnail(annsMessage.embeds[0].thumbnail?.url as string)
-                        .setTimestamp()
-                        .setFooter(annsMessage.embeds[0].footer)
-                ]
-            });
+        await annsMessage.edit({
+            content: annsMessage.content,
+            embeds: [
+                new EmbedBuilder()
+                    .setColor(annsMessage.embeds[0].hexColor as ColorResolvable)
+                    .setTitle(`Event in ${gameName} has been scheduled on <t:${time}:f>!`)
+                    .setFields(annsMessage.embeds[0].fields)
+                    .setDescription(annsMessage.embeds[0].description)
+                    .setThumbnail(annsMessage.embeds[0].thumbnail?.url as string)
+                    .setTimestamp()
+                    .setFooter(annsMessage.embeds[0].footer)
+            ]
+        });
 
-            await interaction.followUp({
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor(Colors.Green)
-                        .setTitle('Success.')
-                        .setDescription('The scheduled event has been rescheduled successfully.')
-                        .setFields(
-                            { name: 'New Time', value: `<t:${time}:f>` },
-                            { name: 'Event ID', value: `${eventId}` }
-                        )
-                        .setThumbnail(logos.checkmark)
-                        .setTimestamp()
-                        .setFooter({ text: 'Spy' })
-                ]
-            });
+        await interaction.followUp({
+            embeds: [
+                new EmbedBuilder()
+                    .setColor(Colors.Green)
+                    .setTitle('Success.')
+                    .setDescription('The event has been rescheduled successfully.')
+                    .setFields(
+                        { name: 'New Time', value: `<t:${time}:f>` },
+                        { name: 'Event ID', value: `${eventId}` }
+                    )
+                    .setThumbnail(logos.checkmark)
+                    .setTimestamp()
+                    .setFooter({ text: 'Spy' })
+            ]
+        });
 
         return;
     }

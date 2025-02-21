@@ -1,6 +1,6 @@
 {
   "name": "discord-spy-bot",
-  "version": "4.0.7",
+  "version": "4.1.0",
   "description": "spying",
   "main": "build/src/index.js",
   "type": "module",
