@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, Guild, GuildMemberRoleManager, PermissionsBitField, TextChannel } from "discord.js";
 import { botCommand } from "../../types/global.js";
 import { spyBot } from "../../index.js";
-import { errorEmbed, sendError } from "../../misc/function.js";
+import { sendError } from "../../misc/function.js";
 
 export default async (spyBot: spyBot, interaction: ChatInputCommandInteraction<'cached'>) => {
     if (!interaction.member) return;
