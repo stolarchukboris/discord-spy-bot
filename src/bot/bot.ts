@@ -76,16 +76,6 @@ export default class Bot extends Client {
         },
 
         push: async () => {
-            await this.REST.put(
-                Routes.applicationCommands(this.spyBot.env.CLIENT_ID),
-                { body: [] }
-            );
-
-            await this.REST.put(
-                Routes.applicationGuildCommands(this.spyBot.env.CLIENT_ID, this.spyBot.env.GUILD_ID),
-                { body: [] }
-            );
-
             const commandsList = await this.commands.read();
             this.commands.list = commandsList;
 
