@@ -12,7 +12,7 @@ export default class eventsCommand implements botCommand {
         this.spyBot = spyBot;
     }
 
-    execute(interaction: ChatInputCommandInteraction<"cached">, channel: TextChannel, role: string): Promise<void> {
+    execute(interaction: ChatInputCommandInteraction<"cached">, event: eventInfo, channel: TextChannel, role: string): Promise<void> {
         return Promise.resolve(undefined);
     }
 }

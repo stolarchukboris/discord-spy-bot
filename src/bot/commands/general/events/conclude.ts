@@ -1,7 +1,6 @@
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption, TextChannel } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
-import { eventCheck } from "../../../../misc/function.js";
 import logos from '../../../../misc/logos.js';
 
 export default class eventsCommand implements botCommand {
@@ -23,11 +22,9 @@ export default class eventsCommand implements botCommand {
         this.spyBot = spyBot;
     }
 
-    async execute(interaction: ChatInputCommandInteraction<"cached">, channel: TextChannel): Promise<void> {
+    async execute(interaction: ChatInputCommandInteraction<"cached">, event: eventInfo, channel: TextChannel): Promise<void> {
         const eventId = interaction.options.getString('event_id', true);
         const comment = interaction.options.getString('comment');
-        const event = await eventCheck(this.spyBot, interaction, eventId, 1) as eventInfo;
-        if (!event.eventGameName) return;
 
         await this.spyBot.knex<eventInfo>('communityEvents')
             .del()

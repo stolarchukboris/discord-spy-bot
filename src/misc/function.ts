@@ -1,4 +1,4 @@
-import { EmbedBuilder, Colors, GuildChannel, ChatInputCommandInteraction, Guild, TextChannel } from 'discord.js';
+import { EmbedBuilder, Colors, ChatInputCommandInteraction, Guild, TextChannel } from 'discord.js';
 import { spyBot } from '../index.js';
 import logos from './logos.js';
 
@@ -52,35 +52,6 @@ If you cannot host the event, please use </events cancel:1331375015626801256> co
     } catch (error) {
         console.error(error);
     }
-};
-
-export const eventCheck = async (spyBot: spyBot, interaction: ChatInputCommandInteraction<"cached">, eventId: string, status?: number) => {
-    const event = await spyBot.knex<eventInfo>('communityEvents')
-        .select('*')
-        .where('eventId', eventId)
-        .andWhere('guildId', (interaction.guild as Guild).id)
-        .first();
-
-    if (!event) {
-        errorEmbed.setDescription(`Event with ID \`${eventId}\` has not been found in the database.`);
-
-        return await interaction.editReply({ embeds: [errorEmbed] });
-    }
-
-    if (event.eventStatus === status) {
-        switch (status) {
-            case 1:
-                errorEmbed.setDescription('This event has not been started yet.')
-
-                break;
-            case 2:
-                errorEmbed.setDescription('This event has already been started.')
-
-                break;
-        }
-        return await interaction.editReply({ embeds: [errorEmbed] });
-    }
-    return event;
 };
 
 export const sendError = async (interaction: ChatInputCommandInteraction<'cached'>, errorMessage: string) => {
