@@ -1,7 +1,7 @@
 import { spyBot } from "../../../../index.js";
-import { ChatInputCommandInteraction, EmbedBuilder, Colors, GuildChannel, SlashCommandStringOption, SlashCommandIntegerOption } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption, SlashCommandIntegerOption, TextChannel } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
-import { errorEmbed } from "../../../../misc/function.js";
+import { errorEmbed, sendError } from "../../../../misc/function.js";
 import logos from '../../../../misc/logos.js';
 import axios from 'axios';
 
@@ -31,18 +31,12 @@ export default class eventsCommand implements botCommand {
         this.spyBot = spyBot;
     }
 
-    async execute(interaction: ChatInputCommandInteraction<"cached">, channelSetting: any, roleSetting: any): Promise<void> {
-        await interaction.deferReply();
-
-        const role = roleSetting.settingValue;
-        const channel = interaction.client.channels.cache.get(channelSetting.settingValue) as GuildChannel;
-        if (!channel?.isTextBased()) return;
-
+    async execute(interaction: ChatInputCommandInteraction<"cached">, channel: TextChannel, role: string): Promise<void> {
         const gameUrl = interaction.options.getString('game_url', true);
         const time = interaction.options.getInteger('time', true);
         const duration = interaction.options.getString('duration') ?? 'Not specified.';
         const comment = interaction.options.getString('comment');
-        const existingEvent = await this.spyBot.knex('communityEvents')
+        const existingEvent = await this.spyBot.knex<eventInfo>('communityEvents')
             .select('*')
             .where('eventTime', '>=', time - 3600)
             .andWhere('eventTime', '<=', time + 3600)
@@ -59,17 +53,21 @@ export default class eventsCommand implements botCommand {
         }
 
         if (time <= Math.round(Date.now() / 1000)) {
-            errorEmbed.setDescription(`Cannot schedule an event in the past.`);
-
-            await interaction.followUp({ embeds: [errorEmbed] });
+            await sendError(interaction, 'The event cannot be scheduled in the past.');
             return;
         }
 
         const eventId = crypto.randomUUID();
         const placeid = gameUrl.split('/')[4];
-        const gameResponse = await axios.get(`https://www.roblox.com/places/api-get-details?assetId=${placeid}`);
-        const gameName = gameResponse.data.Name;
-        let eventDesc;
+        let gameResponse;
+        try {
+            gameResponse = await axios.get(`https://www.roblox.com/places/api-get-details?assetId=${placeid}`);
+        } catch (error) {
+            await sendError(interaction, 'Could not find the provided game.');
+            return;
+        }
+        const gameName: string = gameResponse.data.Name;
+        let eventDesc: string;
 
         if (!comment) {
             eventDesc = `**Event duration**: ${duration}\n\n**This event is going to take place in** [${gameName}](${gameUrl}).\n\n**React with :white_check_mark: if you're planning to attend this event.**`;
@@ -78,9 +76,9 @@ export default class eventsCommand implements botCommand {
         }
 
         const thumbnailResponse = await axios.get(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeid}&returnPolicy=PlaceHolder&size=150x150&format=Webp&isCircular=false`);
-        const gameThumbnail = thumbnailResponse.data.data[0].imageUrl;
+        const gameThumbnail: string = thumbnailResponse.data.data[0].imageUrl;
 
-        await this.spyBot.knex('communityEvents')
+        await this.spyBot.knex<eventInfo>('communityEvents')
             .insert({
                 eventId: eventId,
                 guildId: interaction.guild.id,
@@ -110,10 +108,10 @@ export default class eventsCommand implements botCommand {
 
         await sentAnns.react('✅');
         await channel.send(gameUrl);
-        await this.spyBot.knex('communityEvents')
+        await this.spyBot.knex<eventInfo>('communityEvents')
             .update({ annsMessageId: sentAnns.id })
             .where('eventId', eventId);
-        await interaction.followUp({
+        await interaction.editReply({
             embeds: [
                 new EmbedBuilder()
                     .setColor(Colors.Green)
@@ -128,7 +126,6 @@ export default class eventsCommand implements botCommand {
                     .setFooter({ text: 'Spy' })
             ]
         });
-
         return;
     }
 }

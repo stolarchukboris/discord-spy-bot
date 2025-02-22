@@ -1,6 +1,6 @@
 import { botCommand } from "../../../../types/global.js";
 import { spyBot } from "../../../../index.js";
-import { ChatInputCommandInteraction, EmbedBuilder, Colors } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, Colors, ColorResolvable } from 'discord.js';
 import settingsEnum from "../../../../misc/settingsEnum.js";
 
 export default class settingsCommand implements botCommand {
@@ -14,14 +14,12 @@ export default class settingsCommand implements botCommand {
     }
 
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
-        await interaction.deferReply();
-
         const knex = this.spyBot.knex;
-        const setup = [];
-        const notSetup = [];
+        const setup: string[] = [];
+        const notSetup: string[] = [];
 
         for (const setting of settingsEnum) {
-            const result = await knex(setting.value)
+            const result = await knex<settingInfo>(setting.value)
                 .select('*')
                 .where('guildId', interaction.guild.id);
 
@@ -34,7 +32,7 @@ export default class settingsCommand implements botCommand {
 
         let setupField = ``;
         let notSetupField = ``;
-        let color;
+        let color: ColorResolvable;
         let desc;
 
         color = Colors.Yellow;

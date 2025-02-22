@@ -7,12 +7,12 @@ export default async (spyBot: spyBot, guild: Guild) => {
         const knex = spyBot.knex;
 
         for (const setting of settingsEnum) {
-            await knex(setting.value)
+            await knex<settingInfo>(setting.value)
                 .del()
                 .where('guildId', guild.id);
         }
 
-        await knex('communityEvents')
+        await knex<eventInfo>('communityEvents')
             .del()
             .where('guildId', guild.id);
     } catch (error) {

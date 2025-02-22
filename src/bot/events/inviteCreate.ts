@@ -1,18 +1,18 @@
-import { Guild, Invite, EmbedBuilder, User, Colors } from "discord.js";
+import { Guild, Invite, EmbedBuilder, User, Colors, TextChannel } from "discord.js";
 import { spyBot } from "../../index.js";
 
 export default async (spyBot: spyBot, invite: Invite) => {
     try {
         const knex = spyBot.knex;
-        const setting = await knex('serverLogsChannelSetting')
+        const setting = await knex<settingInfo>('serverLogsChannelSetting')
             .select('*')
             .where('guildId', (invite.guild as Guild).id)
             .first();
 
         if (!setting) return;
 
-        const logsChannelId = setting.settingValue;
-        let inviteExp;
+        const logsChannelId = setting.settingValue as string;
+        let inviteExp: string | number;
         inviteExp = Math.round(invite.expiresTimestamp as number / 1000);
 
         if (inviteExp > Math.round(invite.createdTimestamp as number / 1000)) { inviteExp = `<t:${inviteExp}:f>`; }
@@ -25,8 +25,8 @@ export default async (spyBot: spyBot, invite: Invite) => {
             .setTimestamp()
             .setFooter({ text: `Spy Moderation` });
 
-        const channel = (invite.guild as Guild).channels.cache.get(logsChannelId);
-        if (!channel?.isTextBased()) return;
+        const channel: TextChannel = (invite.guild as Guild).channels.cache.get(logsChannelId) as TextChannel;
+        if (!channel.isTextBased()) return;
 
         await channel.send({ embeds: [embed] });
     } catch (error) {

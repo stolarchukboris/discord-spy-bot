@@ -18,28 +18,26 @@ export default class settingsCommand implements botCommand {
         new SlashCommandStringOption()
             .setName('value')
             .setDescription('The value of the setting to be cleared. Ignore to clear all setting\'s values.')
-    ]
+    ];
 
     constructor(spyBot: spyBot) {
         this.spyBot = spyBot;
     }
 
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
-        await interaction.deferReply();
-
         const knex = this.spyBot.knex;
         const setting = interaction.options.getString('setting', true);
         const value = interaction.options.getString('value');
-        let desc;
+        let desc: string;
 
         if (!value) {
-            await knex(setting)
+            await knex<settingInfo>(setting)
                 .del()
                 .where('guildId', interaction.guild.id);
 
             desc = `Setting \`${setting}\` has been successfully cleared.`;
         } else {
-            await knex(setting)
+            await knex<settingInfo>(setting)
                 .del()
                 .where('guildId', interaction.guild.id)
                 .andWhere('settingValue', value);

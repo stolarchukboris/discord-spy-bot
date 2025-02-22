@@ -10,15 +10,13 @@ export default class userCommand implements botCommand {
         new SlashCommandUserOption()
             .setName('user')
             .setDescription('User to fetch. Ignore to get info on yourself.')
-    ]
+    ];
 
     constructor (spyBot: spyBot) {
         this.spyBot = spyBot;
     }
 
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
-        await interaction.deferReply();
-
         const opt = interaction.options.getUser('user') ?? interaction.user;
         const joined = interaction.member.joinedTimestamp ?? 0;
 

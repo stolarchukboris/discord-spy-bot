@@ -1,15 +1,22 @@
-import { EmbedBuilder, Colors, GuildChannel, ChatInputCommandInteraction, Guild } from 'discord.js';
+import { EmbedBuilder, Colors, GuildChannel, ChatInputCommandInteraction, Guild, TextChannel } from 'discord.js';
 import { spyBot } from '../index.js';
 import logos from './logos.js';
 
+export const errorEmbed = new EmbedBuilder()
+    .setColor(Colors.Red)
+    .setTitle('Error.')
+    .setThumbnail(logos.warning)
+    .setTimestamp()
+    .setFooter({ text: 'Spy' });
+
 export const eventReminder = async (spyBot: spyBot) => {
     try {
-        const channel = spyBot.bot.channels.cache.get('1268223384307634263') as GuildChannel;
-        if (!channel?.isTextBased()) return;
+        const channel: TextChannel = spyBot.bot.channels.cache.get('1268223384307634263') as TextChannel;
+        if (!channel.isTextBased()) return;
 
         const now = Math.floor(Date.now() / 1000);
         const tenMinutesFromNow = now + 10 * 60;
-        const event = await spyBot.knex('communityEvents')
+        const event = await spyBot.knex<eventInfo>('communityEvents')
             .select('*')
             .where('eventTime', '>=', now)
             .andWhere('eventTime', '<=', tenMinutesFromNow)
@@ -39,16 +46,16 @@ If you cannot host the event, please use </events cancel:1331375015626801256> co
             ]
         });
 
-        return await spyBot.knex('communityEvents')
+        return await spyBot.knex<eventInfo>('communityEvents')
             .update({ reminded: true })
             .where('eventId', eventId);
     } catch (error) {
         console.error(error);
     }
-}
+};
 
-export const eventCheck = async (spyBot: spyBot, interaction: ChatInputCommandInteraction<"cached">, errorEmbed: EmbedBuilder, eventId: string, status = 0) => {
-    const event = await spyBot.knex('communityEvents')
+export const eventCheck = async (spyBot: spyBot, interaction: ChatInputCommandInteraction<"cached">, eventId: string, status?: number) => {
+    const event = await spyBot.knex<eventInfo>('communityEvents')
         .select('*')
         .where('eventId', eventId)
         .andWhere('guildId', (interaction.guild as Guild).id)
@@ -57,7 +64,7 @@ export const eventCheck = async (spyBot: spyBot, interaction: ChatInputCommandIn
     if (!event) {
         errorEmbed.setDescription(`Event with ID \`${eventId}\` has not been found in the database.`);
 
-        return await interaction.followUp({ embeds: [errorEmbed] });
+        return await interaction.editReply({ embeds: [errorEmbed] });
     }
 
     if (event.eventStatus === status) {
@@ -67,18 +74,15 @@ export const eventCheck = async (spyBot: spyBot, interaction: ChatInputCommandIn
 
                 break;
             case 2:
-                errorEmbed.setDescription('This event has already been concluded.')
+                errorEmbed.setDescription('This event has already been started.')
 
                 break;
         }
-        return await interaction.followUp({ embeds: [errorEmbed] });
+        return await interaction.editReply({ embeds: [errorEmbed] });
     }
     return event;
-}
+};
 
-export const errorEmbed = new EmbedBuilder()
-    .setColor(Colors.Red)
-    .setTitle('Error.')
-    .setThumbnail(logos.warning)
-    .setTimestamp()
-    .setFooter({ text: 'Spy' });
+export const sendError = async (interaction: ChatInputCommandInteraction<'cached'>, errorMessage: string) => {
+    return await interaction.editReply({ embeds: [errorEmbed.setDescription(errorMessage)] });
+};

@@ -20,15 +20,13 @@ export default class settingsCommand implements botCommand {
             .setName('value')
             .setDescription('The value of this setting.')
             .setRequired(true)
-    ]
+    ];
 
     constructor(spyBot: spyBot) {
         this.spyBot = spyBot;
     }
 
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
-        await interaction.deferReply();
-
         const setting = interaction.options.getString('setting', true);
         const settingValue = interaction.options.getString('value', true);
 
@@ -37,7 +35,7 @@ export default class settingsCommand implements botCommand {
             return;
         }
         
-        await this.spyBot.knex.raw(
+        await this.spyBot.knex.raw<settingInfo>(
             `insert into ${setting} values (?, ?) on duplicate key update settingValue = ?`,
             [interaction.guild.id, settingValue, settingValue]
         );

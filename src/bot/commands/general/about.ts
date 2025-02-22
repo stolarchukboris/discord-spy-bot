@@ -26,9 +26,7 @@ export default class aboutCommand implements botCommand {
     }
 
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
-        await interaction.deferReply();
-
-        let gitHash;
+        let gitHash: string;
 
         try {
             gitHash = execSync('git rev-parse HEAD', { windowsHide: true })

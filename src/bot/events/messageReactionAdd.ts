@@ -1,30 +1,30 @@
-import { EmbedBuilder, AttachmentBuilder, MessageReaction, User, GuildChannel, Message } from "discord.js";
+import { EmbedBuilder, AttachmentBuilder, MessageReaction, User, GuildChannel, Message, TextChannel } from "discord.js";
 import { spyBot } from "../../index.js";
 
 export default async (spyBot: spyBot, messageReaction: MessageReaction) => {
     try {
         const knex = spyBot.knex;
-        const channelSetting = await knex('starboardChannelSetting')
+        const channelSetting = await knex<settingInfo>('starboardChannelSetting')
             .select('*')
-            .where('guildId', messageReaction.message?.guildId)
+            .where('guildId', messageReaction.message.guildId)
             .first();
 
         if (!channelSetting) return;
 
-        const channelId = channelSetting.settingValue;
-        const minReactionsSetting = await knex('starboardReactionsMin')
+        const channelId = channelSetting.settingValue as string;
+        const minReactionsSetting = await knex<settingInfo>('starboardReactionsMin')
             .select('*')
             .where('guildId', messageReaction.message?.guildId)
             .first();
 
         if (!minReactionsSetting) return;
 
-        const minReactions = minReactionsSetting.settingValue;
+        const minReactions = minReactionsSetting.settingValue as number;
 
         if (messageReaction.emoji.name === '⭐' && messageReaction.count >= minReactions && messageReaction.message.channel.id !== channelId) {
-            const channel = messageReaction.client.channels.cache.get(channelId) as GuildChannel;
-            if (!channel?.isTextBased()) return;
-            let desc;
+            const channel: TextChannel = messageReaction.client.channels.cache.get(channelId) as TextChannel;
+            if (!channel.isTextBased()) return;
+            let desc: string;
 
             if (typeof messageReaction.message.content === 'string') {
                 desc = messageReaction.message.content;
@@ -48,7 +48,7 @@ export default async (spyBot: spyBot, messageReaction: MessageReaction) => {
                 }
             );
 
-            const message = await knex('starboardMessages')
+            const message = await knex<starboardMessage>('starboardMessages')
                 .select('*')
                 .where('originMessage', `${messageReaction.message.id}`)
                 .first();
@@ -58,7 +58,7 @@ export default async (spyBot: spyBot, messageReaction: MessageReaction) => {
                     content: `${messageReaction.message.channel.url} | ${messageReaction.count} :star:`,
                     embeds: [embed]
                 });
-                const reactSetting = await knex('starboardReactToOwnMsgs')
+                const reactSetting = await knex<settingInfo>('starboardReactToOwnMsgs')
                     .select('*')
                     .where('guildId', messageReaction.message.guildId)
                     .first();
@@ -73,21 +73,24 @@ export default async (spyBot: spyBot, messageReaction: MessageReaction) => {
                     await channel.send({ files: files });
                 }
 
-                await knex('starboardMessages')
+                await knex<starboardMessage>('starboardMessages')
                     .insert({
                         originMessage: messageReaction.message.id,
                         starboardMessage: msg.id,
                         amountOfReactions: messageReaction.count
                     });
             } else {
-                await knex('starboardMessages')
+                await knex<starboardMessage>('starboardMessages')
                     .update({ amountOfReactions: messageReaction.count })
                     .where('originMessage', messageReaction.message.id);
 
-                const message = await knex('starboardMessages')
+                const message = await knex<starboardMessage>('starboardMessages')
                     .select('*')
                     .where('originMessage', messageReaction.message.id)
                     .first();
+
+                if (!message) return;
+
                 const msgId = message.starboardMessage;
                 const msgToEdit = channel.messages.cache.get(msgId) as Message;
 

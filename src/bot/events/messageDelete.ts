@@ -1,17 +1,17 @@
-import { EmbedBuilder, Message, AttachmentBuilder, Guild, Colors } from "discord.js";
+import { EmbedBuilder, Message, AttachmentBuilder, Guild, Colors, TextChannel } from "discord.js";
 import { spyBot } from "../../index.js";
 
 export default async (spyBot: spyBot, message: Message) => {
     try {
         const knex = spyBot.knex;
-        const setting = await knex('serverLogsChannelSetting')
+        const setting = await knex<settingInfo>('serverLogsChannelSetting')
             .select('*')
             .where('guildId', message.guildId)
             .first();
 
         if (!setting) return;
 
-        const logsChannelId = setting.settingValue;
+        const logsChannelId = setting.settingValue as string;
         const embed = new EmbedBuilder()
             .setColor(Colors.LuminousVividPink)
             .setTitle(`Message deleted from ${message.channel.url}`)
@@ -32,8 +32,8 @@ export default async (spyBot: spyBot, message: Message) => {
             console.error(error);
         }
 
-        const channel = (message.guild as Guild).channels.cache.get(logsChannelId);
-        if (!channel?.isTextBased()) return;
+        const channel: TextChannel = (message.guild as Guild).channels.cache.get(logsChannelId) as TextChannel;
+        if (!channel.isTextBased()) return;
 
         await channel.send({ embeds: [embed] });
 

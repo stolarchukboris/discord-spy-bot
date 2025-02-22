@@ -1,7 +1,7 @@
 import { spyBot } from "../../../../index.js";
-import { ChatInputCommandInteraction, EmbedBuilder, Colors, GuildChannel, SlashCommandStringOption } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption, TextChannel } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
-import { eventCheck, errorEmbed } from "../../../../misc/function.js";
+import { eventCheck } from "../../../../misc/function.js";
 import logos from '../../../../misc/logos.js';
 
 export default class eventsCommand implements botCommand {
@@ -17,41 +17,35 @@ export default class eventsCommand implements botCommand {
         new SlashCommandStringOption()
             .setName('join')
             .setDescription('A way to join your event.')
-    ]
+    ];
 
     constructor(spyBot: spyBot) {
         this.spyBot = spyBot;
     }
 
-    async execute(interaction: ChatInputCommandInteraction<"cached">, channelSetting: any, roleSetting: any): Promise<void> {
-        await interaction.deferReply();
-
-        const role = roleSetting.settingValue;
-        const channel = interaction.client.channels.cache.get(channelSetting.settingValue) as GuildChannel;
-        if (!channel.isTextBased()) return;
-
+    async execute(interaction: ChatInputCommandInteraction<"cached">, channel: TextChannel, role: string): Promise<void> {
         const eventId = interaction.options.getString('event_id', true);
         const join = interaction.options.getString('join');
-        const event = await eventCheck(this.spyBot, interaction, errorEmbed, eventId, 2);
+        const event = await eventCheck(this.spyBot, interaction, eventId, 2) as eventInfo;
+        if (!event.eventGameName) return;
 
-        await this.spyBot.knex('communityEvents')
+        await this.spyBot.knex<eventInfo>('communityEvents')
             .update({ eventStatus: 2 })
             .where('eventId', eventId);
 
         const gameName = event.eventGameName;
         const gameThumbnail = event.gameThumbnailUrl;
-        let desc;
+        let desc: string;
 
         if (!join) {
             desc = `The scheduled event in ${gameName} is starting now.`;
         } else {
             desc = `The scheduled event in ${gameName} is starting now.\n\n**Join the event:** ${join}`;
-        };
+        }
 
         const annsMessage = channel.messages.cache.get(event.annsMessageId);
-        if (!annsMessage) return;
 
-        await annsMessage.reply({
+        if (annsMessage) await annsMessage.reply({
             content: `<@&${role}>`,
             embeds: [
                 new EmbedBuilder()
@@ -65,7 +59,7 @@ export default class eventsCommand implements botCommand {
             ]
         });
 
-        await interaction.followUp({
+        await interaction.editReply({
             embeds: [
                 new EmbedBuilder()
                     .setColor(Colors.Green)

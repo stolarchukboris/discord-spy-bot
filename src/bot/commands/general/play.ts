@@ -21,8 +21,6 @@ export default class musicCommand implements botCommand {
     }
 
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
-        await interaction.deferReply();
-
         if (!(interaction.inGuild() && interaction.member.voice.channel)) {
             await interaction.editReply({
                 embeds: [

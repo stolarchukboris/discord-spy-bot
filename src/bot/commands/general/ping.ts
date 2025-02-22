@@ -13,8 +13,6 @@ export default class pingCommand implements botCommand {
     }
 
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
-        await interaction.deferReply();
-
         await interaction.editReply({
             embeds: [
                 new EmbedBuilder()

@@ -13,15 +13,13 @@ export default class robloxCommand implements botCommand {
             .setName('username')
             .setDescription('Player\'s username.')
             .setRequired(true)
-    ]
+    ];
 
     constructor(spyBot: spyBot) {
         this.spyBot = spyBot;
     }
 
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
-        await interaction.deferReply();
-
         const key = this.spyBot.env.OPEN_CLOUD_API_KEY;
         const uname = interaction.options.getString('username', true);
         const responseId = await axios.post('https://users.roblox.com/v1/usernames/users', {
@@ -43,9 +41,9 @@ export default class robloxCommand implements botCommand {
             ]
         });
         const responseUser = await axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}`, { headers: { 'x-api-key': key } });
-        const desc = responseUser.data.about || 'No description provided.';
+        const desc: string = responseUser.data.about || 'No description provided.';
 
-        let pfpURL;
+        let pfpURL: string;
         try {
             const responseOperation = await axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}:generateThumbnail?shape=SQUARE`, { headers: { 'x-api-key': key } });
             pfpURL = responseOperation.data.response.imageUri;
@@ -53,21 +51,20 @@ export default class robloxCommand implements botCommand {
             pfpURL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Not_allowed.svg/1200px-Not_allowed.svg.png';
         }
 
-        let color;
-
-        let presenceType = responsePresence.data.userPresences[0].userPresenceType;
+        let color: ColorResolvable;
+        let presenceType: string | number = responsePresence.data.userPresences[0].userPresenceType;
         const lastOnline = responsePresence.data.userPresences[0].lastOnline;
 
         if (presenceType === 0) { presenceType = "Offline."; color = Colors.Grey; }
         else if (presenceType === 1) { presenceType = "On the website."; color = Colors.Blue; }
         else if (presenceType === 2) { presenceType = "Playing."; color = Colors.Green; }
         else if (presenceType === 3) { presenceType = "Building in Studio."; color = Colors.Orange; }
-        else if (presenceType === 4) { presenceType = "Invisible."; color = Colors.Grey; };
+        else { presenceType = "Invisible."; color = Colors.Grey; };
 
         await interaction.followUp({
             embeds: [
                 new EmbedBuilder()
-                    .setColor(color as ColorResolvable)
+                    .setColor(color)
                     .setTitle(`Roblox player information.`)
                     .setDescription(`General information on [${responseUser.data.name} (${responseUser.data.displayName})](https://www.roblox.com/users/${userid}/profile).`)
                     .setThumbnail(pfpURL)
