@@ -76,10 +76,21 @@ export default class Bot extends Client {
         },
 
         push: async () => {
+            await this.REST.put(
+                Routes.applicationCommands(this.spyBot.env.CLIENT_ID),
+                { body: [] }
+            );
+
+            await this.REST.put(
+                Routes.applicationGuildCommands(this.spyBot.env.CLIENT_ID, this.spyBot.env.GUILD_ID),
+                { body: [] }
+            );
+
             const commandsList = await this.commands.read();
             this.commands.list = commandsList;
 
-            const parsedCommands: RESTPostAPIApplicationCommandsJSONBody[] = [];
+            const parsedGCommands: RESTPostAPIApplicationCommandsJSONBody[] = [];
+            const parsedDCommands: RESTPostAPIApplicationCommandsJSONBody[] = [];
 
             for (const categoryName of commandsList.keys()) {
                 const category = commandsList.get(categoryName);
@@ -124,13 +135,22 @@ export default class Bot extends Client {
 
                     this.apiCommands.push(slashCommand);
 
-                    parsedCommands.push(slashCommand.toJSON())
+                    if (command.developer) {
+                        parsedDCommands.push(slashCommand.toJSON());
+                    } else {
+                        parsedGCommands.push(slashCommand.toJSON());
+                    }
                 }
             }
 
             await this.REST.put(
                 Routes.applicationCommands(this.spyBot.env.CLIENT_ID),
-                { body: parsedCommands }
+                { body: parsedGCommands }
+            );
+
+            await this.REST.put(
+                Routes.applicationGuildCommands(this.spyBot.env.CLIENT_ID, this.spyBot.env.GUILD_ID),
+                { body: parsedDCommands }
             );
         }
     }
