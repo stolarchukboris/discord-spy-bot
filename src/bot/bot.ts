@@ -3,6 +3,9 @@ import { spyBot } from '../index.js';
 import { Client, Collection, IntentsBitField, REST, RESTPostAPIApplicationCommandsJSONBody, Routes, SlashCommandBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { config } from 'dotenv';
 import { botCommand, botEvent } from '../types/global.js';
+import DisTube from "distube";
+import { YouTubePlugin } from "@distube/youtube";
+import { SoundCloudPlugin } from "@distube/soundcloud";
 const __dirname = import.meta.dirname;
 
 config();
@@ -17,6 +20,7 @@ export default class Bot extends Client {
     REST: REST = new REST();
     apiCommands: SlashCommandBuilder[] = [];
     spyBot: spyBot;
+    distube = new DisTube(this, { plugins: [new YouTubePlugin(), new SoundCloudPlugin()] });
 
     constructor(spyBot: spyBot) {
         super({

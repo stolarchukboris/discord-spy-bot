@@ -1,7 +1,7 @@
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, ColorResolvable, SlashCommandStringOption, SlashCommandIntegerOption, TextChannel } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
-import { errorEmbed, sendError } from "../../../../misc/function.js";
+import { sendError } from "../../../../misc/function.js";
 import logos from '../../../../misc/logos.js';
 
 export default class eventsCommand implements botCommand {
@@ -35,14 +35,10 @@ export default class eventsCommand implements botCommand {
             .first();
 
         if ((event.eventTime == time) || (time <= Math.floor(Date.now() / 1000))) {
-            await sendError(interaction, event.eventTime == time ? 'The event time must be changed when using this command.' : 'The event cannot be rescheduled to the past.');
+            await sendError(interaction, { errorMessage: event.eventTime == time ? 'The event time must be changed when using this command.' : 'The event cannot be rescheduled to the past.' });
             return;
         } else if (eventAtThisTime) {
-            errorEmbed
-                .setDescription('Schedule conflict. There is already an event scheduled for this time.')
-                .setFields({ name: 'Event at this time', value: eventAtThisTime.eventId });
-
-            await interaction.followUp({ embeds: [errorEmbed] });
+            await sendError(interaction, { errorMessage: 'Schedule conflict. There is already an event scheduled for this time.' });
             return;
         }
 

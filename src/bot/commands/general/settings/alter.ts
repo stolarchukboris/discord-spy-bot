@@ -1,7 +1,7 @@
 import { botCommand } from "../../../../types/global.js";
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption } from 'discord.js';
-import { errorEmbed } from "../../../../misc/function.js";
+import { sendError } from "../../../../misc/function.js";
 import logos from '../../../../misc/logos.js';
 import settingsEnum from "../../../../misc/settingsEnum.js";
 
@@ -31,7 +31,7 @@ export default class settingsCommand implements botCommand {
         const settingValue = interaction.options.getString('value', true);
 
         if (isNaN(Number(settingValue)) || settingValue.split('.')[1]) {
-            await interaction.editReply({ embeds: [errorEmbed.setDescription('Setting value can only be a number with no decimal places.')] });
+            await sendError(interaction, { errorMessage: 'Setting value can only be a number with no decimal places.' });
             return;
         }
         

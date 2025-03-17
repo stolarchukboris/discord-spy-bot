@@ -1,7 +1,7 @@
 import { botCommand } from "../../../../types/global.js";
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption } from 'discord.js';
-import { errorEmbed } from "../../../../misc/function.js";
+import { sendError } from "../../../../misc/function.js";
 import axios from 'axios';
 
 export default class robloxCommand implements botCommand {
@@ -68,7 +68,7 @@ export default class robloxCommand implements botCommand {
             });
             return;
         } catch (error) {
-            await interaction.editReply({ embeds: [errorEmbed.setDescription(`No group matching the query \`${name}\` has been found.`)] });
+            await sendError(interaction, { errorMessage: `No group matching the query \`${name}\` has been found.` });
             return;
         }
     }

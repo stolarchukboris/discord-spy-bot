@@ -8,6 +8,7 @@ declare interface botCommand {
     developer?: boolean;
     admin?: boolean;
     eo?: boolean;
+    vc?: boolean;
 
     isIndexer?: boolean;
     spyBot: spyBot;

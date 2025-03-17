@@ -1,7 +1,7 @@
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption, SlashCommandIntegerOption, TextChannel } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
-import { errorEmbed, sendError } from "../../../../misc/function.js";
+import { sendError } from "../../../../misc/function.js";
 import logos from '../../../../misc/logos.js';
 import axios from 'axios';
 
@@ -44,16 +44,12 @@ export default class eventsCommand implements botCommand {
             .first();
 
         if (existingEvent) {
-            errorEmbed
-                .setDescription(`There is already an event scheduled for this time.`)
-                .setFields({ name: 'Event at this time', value: existingEvent.eventId });
-
-            await interaction.followUp({ embeds: [errorEmbed] });
+            await sendError(interaction, { errorMessage: 'There is already an event scheduled for this time.' });
             return;
         }
 
         if (time <= Math.round(Date.now() / 1000)) {
-            await sendError(interaction, 'The event cannot be scheduled in the past.');
+            await sendError(interaction, { errorMessage: 'The event cannot be scheduled in the past.' });
             return;
         }
 
@@ -63,7 +59,7 @@ export default class eventsCommand implements botCommand {
         try {
             gameResponse = await axios.get(`https://www.roblox.com/places/api-get-details?assetId=${placeid}`);
         } catch (error) {
-            await sendError(interaction, 'Could not find the provided game.');
+            await sendError(interaction, { errorMessage: 'Could not find the provided game.' });
             return;
         }
         const gameName: string = gameResponse.data.Name;

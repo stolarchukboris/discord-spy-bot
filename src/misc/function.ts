@@ -1,13 +1,6 @@
-import { EmbedBuilder, Colors, ChatInputCommandInteraction, Guild, TextChannel } from 'discord.js';
+import { EmbedBuilder, Colors, ChatInputCommandInteraction, TextChannel, ColorResolvable } from 'discord.js';
 import { spyBot } from '../index.js';
 import logos from './logos.js';
-
-export const errorEmbed = new EmbedBuilder()
-    .setColor(Colors.Red)
-    .setTitle('Error.')
-    .setThumbnail(logos.warning)
-    .setTimestamp()
-    .setFooter({ text: 'Spy' });
 
 export const eventReminder = async (spyBot: spyBot) => {
     try {
@@ -54,6 +47,44 @@ If you cannot host the event, please use </events cancel:1331375015626801256> co
     }
 };
 
-export const sendError = async (interaction: ChatInputCommandInteraction<'cached'>, errorMessage: string) => {
-    return await interaction.editReply({ embeds: [errorEmbed.setDescription(errorMessage)] });
-};
+/**
+ * Error send options.
+ * 
+ * @param {boolean} editReply (optional, defaults to `true`) If the interaction if deferred, whether to edit a reply or to send a follow up to it.
+ * @param {string} errorMessage (optional, defaults to `An error has occured while executing this command.`) A message to be displayed in the embed description.
+ * @param {ColorResolvable} embedColor (optional, defaults to `Colors.Red`) An embed color to use.
+ * @param {string} embedThumbnail (optional, defaults to `logos.failure`) An embed thumbnail to use.
+ */
+interface sendErrorOptions {
+    editReply?: boolean;
+    errorMessage?: string;
+    embedColor?: ColorResolvable;
+    embedThumbnail?: string;
+}
+
+/**
+ * Sends an error embed.
+ *
+ * @param {sendErrorOptions} options (optional) Error sending options.
+ * 
+ * @returns An error embed message response.
+ */
+export const sendError = async (interaction: ChatInputCommandInteraction, options?: sendErrorOptions) => {
+    const embed = new EmbedBuilder()
+        .setColor(options?.embedColor ?? Colors.Red)
+        .setTitle('Error.')
+        .setDescription(options?.errorMessage ?? 'An error has occured while executing this command.')
+        .setThumbnail(options?.embedThumbnail ?? logos.warning)
+        .setTimestamp()
+        .setFooter({ text: 'Spy' })
+
+    if (!interaction.deferred) {
+        return await interaction.reply({ embeds: [embed] });
+    }
+
+    if (options?.editReply) {
+        return await interaction.editReply({ embeds: [embed] });
+    } else {
+        return await interaction.followUp({ embeds: [embed] });
+    }
+}
