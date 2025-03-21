@@ -62,8 +62,7 @@ export default class robloxCommand implements botCommand {
         let color;
 
         let presenceType = responsePresence.data.userPresences[0].userPresenceType;
-        const lastOnline = responsePresence.data.userPresences[0].lastOnline;
-
+        
         if (presenceType === 0) { presenceType = "Offline."; color = Colors.Grey; }
         else if (presenceType === 1) { presenceType = "On the website."; color = Colors.Blue; }
         else if (presenceType === 2) { presenceType = "Playing."; color = Colors.Green; }
@@ -82,7 +81,6 @@ export default class robloxCommand implements botCommand {
                         { name: 'ID:', value: `${responseUser.data.id}`, inline: true },
                         { name: 'Is Premium:', value: `${responseUser.data.premium ?? false}`, inline: true },
                         { name: 'Status:', value: `${presenceType}`, inline: true },
-                        { name: 'Last Online:', value: `<t:${Math.floor(Date.parse(new Date(lastOnline).toString()) / 1000)}:f>`, inline: true },
                         { name: 'Created:', value: `<t:${Math.floor(Date.parse(responseUser.data.createTime) / 1000)}:f>`, inline: true },
                         { name: 'Description:', value: `${desc}` }
                     )
