@@ -1,4 +1,5 @@
-import { ApplicationCommandOptionBase, AutocompleteInteraction, ChatInputCommandInteraction } from "discord.js";
+import { ApplicationCommandOptionBase, AutocompleteInteraction, ChatInputCommandInteraction, RestOrArray, APIEmbedField } from "discord.js";
+import spyBot from "../index.js";
 
 declare interface botCommand {
     name: Lowercase<string>;
