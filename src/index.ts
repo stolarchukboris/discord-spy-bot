@@ -93,15 +93,9 @@ class spyBotObject {
         if (options.fields) embed.setFields(...options.fields);
         if (options.image) embed.setImage(options.image);
 
-        if (!(interaction.deferred || interaction.replied)) {
-            return await interaction.reply({ embeds: [embed] });
-        }
+        if (!(interaction.deferred || interaction.replied)) return await interaction.reply({ embeds: [embed] });
 
-        if (options.followUp) {
-            return await interaction.followUp({ embeds: [embed] });
-        } else {
-            return await interaction.editReply({ embeds: [embed] });
-        }
+        return options.followUp ? await interaction.followUp({ embeds: [embed] }) : await interaction.editReply({ embeds: [embed] });
     }
 }
 
