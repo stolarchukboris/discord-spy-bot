@@ -77,12 +77,12 @@ export default class robloxCommand implements botCommand {
                     .setDescription(`General information on [${responseUser.data.name} (${responseUser.data.displayName})](https://www.roblox.com/users/${userid}/profile).`)
                     .setThumbnail(pfpURL)
                     .addFields(
-                        { name: 'Username:', value: `${responseUser.data.name}`, inline: true },
-                        { name: 'ID:', value: `${responseUser.data.id}`, inline: true },
+                        { name: 'Username:', value: responseUser.data.name, inline: true },
+                        { name: 'ID:', value: responseUser.data.id, inline: true },
                         { name: 'Is Premium:', value: `${responseUser.data.premium ?? false}`, inline: true },
-                        { name: 'Status:', value: `${presenceType}`, inline: true },
+                        { name: 'Status:', value: presenceType, inline: true },
                         { name: 'Created:', value: `<t:${Math.floor(Date.parse(responseUser.data.createTime) / 1000)}:f>`, inline: true },
-                        { name: 'Description:', value: `${desc}` }
+                        { name: 'Description:', value: desc }
                     )
                     .setTimestamp()
                     .setFooter({ text: 'Spy' })

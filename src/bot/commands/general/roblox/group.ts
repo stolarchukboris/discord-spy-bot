@@ -51,15 +51,15 @@ export default class robloxCommand implements botCommand {
                         .setTitle(`Roblox group information.`)
                         .setDescription(`Information on [${groupName}](${groupUrl}).`)
                         .addFields(
-                            { name: 'Name:', value: `${groupName}`, inline: true },
+                            { name: 'Name:', value: groupName, inline: true },
                             { name: 'Owner:', value: `[${ownerName}](${ownerUrl})`, inline: true },
-                            { name: 'Member count:', value: `${groupMemberCount}`, inline: true },
+                            { name: 'Member count:', value: groupMemberCount, inline: true },
                             { name: 'Is verified:', value: `${isVerified}`, inline: true },
                             { name: 'Created:', value: `<t:${created}:f>`, inline: true },
                             { name: 'Updated:', value: `<t:${updated}:f>`, inline: true },
                             { name: 'Is locked:', value: `${isLocked}`, inline: true },
                             { name: 'Is public entry allowed:', value: `${isPublicEntryAllowed}`, inline: true },
-                            { name: 'Description:', value: `${groupDesc}` }
+                            { name: 'Description:', value: groupDesc }
                         )
                         .setTimestamp()
                         .setFooter({ text: 'Spy' })
