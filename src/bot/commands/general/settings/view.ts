@@ -1,7 +1,6 @@
 import { botCommand } from "../../../../types/global.js";
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, ColorResolvable } from 'discord.js';
-import settingsEnum from "../../../../misc/settingsEnum.js";
 
 export default class settingsCommand implements botCommand {
     name: Lowercase<string> = "view";
@@ -18,7 +17,7 @@ export default class settingsCommand implements botCommand {
         const setup: string[] = [];
         const notSetup: string[] = [];
 
-        for (const setting of settingsEnum) {
+        for (const setting of this.spyBot.settings) {
             const result = await knex<settingInfo>(setting.value)
                 .select('*')
                 .where('guildId', interaction.guild.id);
@@ -71,9 +70,8 @@ export default class settingsCommand implements botCommand {
                         { name: 'Not set up', value: notSetupField, inline: true }
                     )
                     .setTimestamp()
-                    .setFooter({ text: 'Spy Configuration' })
+                    .setFooter({ text: 'Spy' })
             ]
         });
-        return;
     }
 }

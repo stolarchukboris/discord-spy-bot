@@ -1,8 +1,6 @@
 import { spyBot } from "../../../../index.js";
-import { ChatInputCommandInteraction, EmbedBuilder, Colors, ColorResolvable, SlashCommandStringOption, SlashCommandIntegerOption, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, ColorResolvable, SlashCommandStringOption, SlashCommandIntegerOption, TextChannel } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
-import { sendError } from "../../../../misc/function.js";
-import logos from '../../../../misc/logos.js';
 
 export default class eventsCommand implements botCommand {
     name: Lowercase<string> = "update";
@@ -35,10 +33,14 @@ export default class eventsCommand implements botCommand {
             .first();
 
         if ((event.eventTime == time) || (time <= Math.floor(Date.now() / 1000))) {
-            await sendError(interaction, { errorMessage: event.eventTime == time ? 'The event time must be changed when using this command.' : 'The event cannot be rescheduled to the past.' });
+            await this.spyBot.sendEmbed(interaction, {
+                type: 'warning',
+                message: event.eventTime === time ? 'The new event time cannot be the same as the old event time.' : 'The event cannot be rescheduled to the past.' });
             return;
         } else if (eventAtThisTime) {
-            await sendError(interaction, { errorMessage: 'Schedule conflict. There is already an event scheduled for this time.' });
+            await this.spyBot.sendEmbed(interaction, {
+                type: 'warning',
+                message: 'Schedule conflict. There is already an event scheduled for this time.' });
             return;
         }
 
@@ -52,6 +54,7 @@ export default class eventsCommand implements botCommand {
         const gameName = event.eventGameName;
         const gameThumbnail = event.gameThumbnailUrl;
         const annsMessage = channel.messages.cache.get(event.annsMessageId);
+        
         if (annsMessage) {
             await annsMessage.reply({
                 content: `<@&${role}>`,
@@ -62,7 +65,7 @@ export default class eventsCommand implements botCommand {
                         .setDescription(`The event in ${gameName} has been rescheduled.\n\n**Please adjust your availability accordingly.**`)
                         .setFields(
                             { name: 'New Time', value: `<t:${time}:f>`, inline: true },
-                            { name: 'Event ID', value: `${eventId}`, inline: true }
+                            { name: 'Event ID', value: eventId, inline: true }
                         )
                         .setThumbnail(gameThumbnail)
                         .setTimestamp()
@@ -85,21 +88,10 @@ export default class eventsCommand implements botCommand {
             });
         } 
 
-        await interaction.followUp({
-            embeds: [
-                new EmbedBuilder()
-                    .setColor(Colors.Green)
-                    .setTitle('Success.')
-                    .setDescription('The event has been rescheduled successfully.')
-                    .setFields(
-                        { name: 'New Time', value: `<t:${time}:f>` },
-                        { name: 'Event ID', value: `${eventId}` }
-                    )
-                    .setThumbnail(logos.checkmark)
-                    .setTimestamp()
-                    .setFooter({ text: 'Spy' })
-            ]
+        await this.spyBot.sendEmbed(interaction, {
+            type: 'success',
+            message: 'The event has been rescheduled successfully.',
+            fields: [{ name: 'Event ID', value: eventId }]
         });
-        return;
     }
 }

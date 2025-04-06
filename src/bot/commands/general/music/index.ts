@@ -6,6 +6,7 @@ export default class musicCommand implements botCommand {
     name: Lowercase<string> = "music";
     description: string = "Interact with the music player.";
     spyBot: spyBot;
+    vc = true;
 
     constructor(spyBot: spyBot) {
         this.spyBot = spyBot;

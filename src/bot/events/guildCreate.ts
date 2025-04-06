@@ -1,7 +1,6 @@
 import { EmbedBuilder, Colors, Guild } from 'discord.js';
-import { spyBot } from '../../index.js';
 
-export default async (spyBot: spyBot, guild: Guild) => {
+export default async (guild: Guild) => {
     try {
         if (!guild.systemChannel) return;
 
@@ -26,5 +25,4 @@ Have a great time using Spy!`)
     } catch (error) {
         console.error(error);
     }
-    return;
 }

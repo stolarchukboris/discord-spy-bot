@@ -7,7 +7,6 @@ export default class settingsCommand implements botCommand {
     description: string = "[ADMIN] Manage bot settings in this guild.";
     spyBot: spyBot;
     admin = true;
-    options = [];
 
     constructor(spyBot: spyBot) {
         this.spyBot = spyBot;

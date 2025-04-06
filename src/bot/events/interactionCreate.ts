@@ -1,9 +1,8 @@
 import { AutocompleteInteraction, ChatInputCommandInteraction, Guild, GuildMemberRoleManager, PermissionsBitField, TextChannel } from "discord.js";
 import { botCommand } from "../../types/global.js";
-import { spyBot } from "../../index.js";
-import { sendError } from "../../misc/function.js";
+import spyBot from "../../index.js";
 
-export default async (spyBot: spyBot, interaction: ChatInputCommandInteraction<'cached'> | AutocompleteInteraction<'cached'>) => {
+export default async (interaction: ChatInputCommandInteraction<'cached'> | AutocompleteInteraction<'cached'>) => {
     if (!interaction.member) return;
     if (!interaction.guild) return;
 
@@ -19,20 +18,27 @@ export default async (spyBot: spyBot, interaction: ChatInputCommandInteraction<'
             return command;
         });
 
-        if (!command) return await sendError(interaction, { errorMessage: `No command with name \`${sentCommand}\` has been found.` });
+        if (!command) return await spyBot.sendEmbed(interaction, {
+            type: 'error',
+            message: `No command with name \`${sentCommand}\` has been found.`
+        });
 
         const subCommand = options.getSubcommand(false);
 
         if (subCommand) command = command.subcommands?.find(subCom => subCom.name == subCommand);
 
-        if (!command) return await sendError(interaction, { errorMessage: `No subcommand with name \`${sentCommand}\` has been found.` });
+        if (!command) return await spyBot.sendEmbed(interaction, {
+            type: 'error',
+            message: `No subcommand with name \`${sentCommand}\` has been found.`
+        });
 
         const perms = interaction.member.permissions as Readonly<PermissionsBitField>;
 
-        if ((command.developer && !(interaction.user.id === spyBot.env.OWNER_ID))
-            || (command.admin && !perms.has('Administrator'))) return await sendError(interaction, { errorMessage: 'You are not authorized to run this command.' });
+        if ((command.developer && !(interaction.user.id === spyBot.env.OWNER_ID)) ||
+            (command.admin && !perms.has('Administrator'))) return await spyBot.sendEmbed(interaction, { type: 'accessDenied' });
 
         const args = [];
+
         if (command.eo) {
             const permittedUsersSetting = await spyBot.knex<settingInfo>('eventUsersRolesSetting')
                 .select('*')
@@ -41,7 +47,7 @@ export default async (spyBot: spyBot, interaction: ChatInputCommandInteraction<'
             const roles = interaction.member.roles as GuildMemberRoleManager;
 
             if (!(allowedIds.includes(interaction.user.id) || roles.cache.hasAny(...allowedIds) || perms.has('Administrator')))
-                return await sendError(interaction, { errorMessage: 'You are not authorized to run this command.' });
+                return await spyBot.sendEmbed(interaction, { type: 'accessDenied' });
 
             const channelSetting = await spyBot.knex<settingInfo>('eventAnnsChannelSetting')
                 .select('*')
@@ -52,10 +58,16 @@ export default async (spyBot: spyBot, interaction: ChatInputCommandInteraction<'
                 .where('guildId', interaction.guild.id)
                 .first();
 
-            if (!channelSetting || !roleSetting) return await sendError(interaction, { errorMessage: !channelSetting ? 'Event announcements channel not configured.' : 'Events ping role not configured.' });
+            if (!channelSetting || !roleSetting) return await spyBot.sendEmbed(interaction, {
+                type: 'error',
+                message: !channelSetting ? 'Event announcements channel not configured.' : 'Events ping role not configured.'
+            });
 
             const channel = spyBot.bot.channels.cache.get(channelSetting.settingValue as string) as TextChannel;
-            if (!channel.isTextBased()) return await sendError(interaction, { errorMessage: 'The provided event announcements channel is not a text channel.' });
+            if (!channel.isTextBased()) return await spyBot.sendEmbed(interaction, {
+                type: 'error',
+                message: 'The provided event announcements channel is not a text channel.'
+            });
 
             if (command.name !== 'schedule') {
                 const eventId = interaction.options.getString('event_id', true);
@@ -65,13 +77,19 @@ export default async (spyBot: spyBot, interaction: ChatInputCommandInteraction<'
                     .andWhere('guildId', (interaction.guild as Guild).id)
                     .first();
 
-                if (!event) return await sendError(interaction, { errorMessage: `Even with ID \`${eventId}\` has not been found in the database.` });
+                if (!event) return await spyBot.sendEmbed(interaction, {
+                    type: 'warning',
+                    message: `Even with ID \`${eventId}\` has not been found in the database.`
+                });
 
                 let status;
 
                 if (command.name === 'conclude') status = 1;
                 if (command.name === 'start' || command.name === 'update') status = 2;
-                if (event.eventStatus === status) return await sendError(interaction, { errorMessage: status === 1 ? 'This event has not been started yet.' : 'This event has already been started.' });
+                if (event.eventStatus === status) return await spyBot.sendEmbed(interaction, {
+                    type: 'warning',
+                    message: status === 1 ? 'This event has not been started yet.' : 'This event has already been started.'
+                });
 
                 args.push(event);
             }
@@ -79,14 +97,17 @@ export default async (spyBot: spyBot, interaction: ChatInputCommandInteraction<'
             args.push(channel, roleSetting.settingValue);
         }
 
-        if (command.vc && !interaction.member.voice.channel) return await sendError(interaction, { errorMessage: 'You must be in a Voice Channel to run this command.' });
+        if (command.vc && !interaction.member.voice.channel) return await spyBot.sendEmbed(interaction, {
+            type: 'warning',
+            message: 'You must be in a Voice Channel to run this command.'
+        });
 
         try {
             await command.execute(interaction, ...args);
         } catch (error) {
             console.error(error);
 
-            return await sendError(interaction);
+            return await spyBot.sendEmbed(interaction, { type: 'error' });
         }
     } else if (interaction.isAutocomplete()) {
         const sentCommand = interaction.commandName;

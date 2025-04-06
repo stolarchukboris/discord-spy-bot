@@ -1,7 +1,6 @@
 import { botCommand } from "../../../../types/global.js";
 import { spyBot } from "../../../../index.js";
-import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption } from 'discord.js';
-import logos from '../../../../misc/logos.js';
+import { ChatInputCommandInteraction, SlashCommandStringOption } from 'discord.js';
 import settingsEnum from "../../../../misc/settingsEnum.js";
 
 export default class settingsCommand implements botCommand {
@@ -45,17 +44,9 @@ export default class settingsCommand implements botCommand {
             desc = `Value \`${value}\` of a setting \`${setting}\` has been successfully cleared.`;
         }
 
-        await interaction.followUp({
-            embeds: [
-                new EmbedBuilder()
-                    .setColor(Colors.Green)
-                    .setTitle('Success.')
-                    .setDescription(desc)
-                    .setThumbnail(logos.checkmark)
-                    .setTimestamp()
-                    .setFooter({ text: 'Spy Configuration' })
-            ]
+        await this.spyBot.sendEmbed(interaction, {
+            type: 'success',
+            message: desc
         });
-        return;
     }
 }

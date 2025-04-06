@@ -1,12 +1,11 @@
 import { Guild } from "discord.js";
-import settingsEnum from "../../misc/settingsEnum.js";
-import { spyBot } from "../../index.js";
+import spyBot from "../../index.js";
 
-export default async (spyBot: spyBot, guild: Guild) => {
+export default async (guild: Guild) => {
     try {
         const knex = spyBot.knex;
 
-        for (const setting of settingsEnum) {
+        for (const setting of spyBot.settings) {
             await knex<settingInfo>(setting.value)
                 .del()
                 .where('guildId', guild.id);
@@ -18,5 +17,4 @@ export default async (spyBot: spyBot, guild: Guild) => {
     } catch (error) {
         console.error(error);
     }
-    return;
 }

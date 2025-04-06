@@ -40,9 +40,9 @@ export default class aboutCommand implements botCommand {
             embeds: [
                 new EmbedBuilder()
                     .setColor(Colors.Green)
-                    .setTitle('Spy Information')
+                    .setTitle('Spy information.')
                     .setDescription('Spy statistics and information. The bot repository can be found [here](https://github.com/stolarchukboris/discord-spy-bot).')
-                    .setFields([
+                    .setFields(
                         {
                             name: "General Stats",
                             value: `\`\`\`yml\nName: ${interaction.client.user.username}#${interaction.client.user.discriminator}\nID: ${interaction.client.user.id}\`\`\``,
@@ -61,7 +61,7 @@ export default class aboutCommand implements botCommand {
                             name: "Build Stats",
                             value: `\`\`\`yml\nSpy: v${packageJSON.version}\nBuild: ${gitHash}\n\`\`\``,
                         },
-                    ])
+                    )
                     .setTimestamp()
                     .setFooter({
                         text: 'Spy',
@@ -69,7 +69,5 @@ export default class aboutCommand implements botCommand {
                     })
             ]
         });
-
-        return;
     }
 }

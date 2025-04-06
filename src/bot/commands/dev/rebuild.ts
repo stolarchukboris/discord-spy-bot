@@ -23,13 +23,13 @@ export default class rebuildCommand implements botCommand {
                 embeds: [
                     new EmbedBuilder()
                         .setColor(Colors.Red)
-                        .setTitle('stderr')
+                        .setTitle('Information.')
                         .setDescription('Console has returned some warnings or information.')
                         .setFields([
-                            { name: 'Output', value: `\`\`\`\n${data}\`\`\`` },
+                            { name: 'stderr', value: `\`\`\`\n${data}\`\`\`` },
                         ])
                         .setTimestamp()
-                        .setFooter({ text: interaction.guild.name })
+                        .setFooter({ text: 'Spy' })
                 ]
             });
         });
@@ -41,13 +41,13 @@ export default class rebuildCommand implements botCommand {
                 embeds: [
                     new EmbedBuilder()
                         .setColor(Colors.Blurple)
-                        .setTitle('Rebuild Operation')
+                        .setTitle('Rebuild operation.')
                         .setDescription('Rebuilding the bot, watch output for results...')
                         .setFields([
-                            { name: 'Output', value: `\`\`\`\n${data}\`\`\`` },
+                            { name: 'stdout', value: `\`\`\`\n${data}\`\`\`` },
                         ])
                         .setTimestamp()
-                        .setFooter({ text: interaction.guild.name })
+                        .setFooter({ text: 'Spy' })
                 ]
             });
         });

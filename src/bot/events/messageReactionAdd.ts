@@ -1,7 +1,7 @@
-import { EmbedBuilder, AttachmentBuilder, MessageReaction, User, GuildChannel, Message, TextChannel } from "discord.js";
-import { spyBot } from "../../index.js";
+import { EmbedBuilder, AttachmentBuilder, MessageReaction, User, Message, TextChannel } from "discord.js";
+import spyBot from "../../index.js";
 
-export default async (spyBot: spyBot, messageReaction: MessageReaction) => {
+export default async (messageReaction: MessageReaction) => {
     try {
         const knex = spyBot.knex;
         const channelSetting = await knex<settingInfo>('starboardChannelSetting')
@@ -22,31 +22,19 @@ export default async (spyBot: spyBot, messageReaction: MessageReaction) => {
         const minReactions = minReactionsSetting.settingValue as number;
 
         if (messageReaction.emoji.name === '⭐' && messageReaction.count >= minReactions && messageReaction.message.channel.id !== channelId) {
-            const channel: TextChannel = messageReaction.client.channels.cache.get(channelId) as TextChannel;
+            const channel = messageReaction.client.channels.cache.get(channelId) as TextChannel;
             if (!channel.isTextBased()) return;
+
             let desc: string;
 
-            if (typeof messageReaction.message.content === 'string') {
-                desc = messageReaction.message.content;
-            } else {
-                desc = '';
-            }
-
-            const embed = new EmbedBuilder()
-                .setColor(16755763)
-                .setAuthor({ name: (messageReaction.message.author as User).username, iconURL: (messageReaction.message.author as User).avatarURL() as string })
-                .setDescription(`[**Jump to message**](${messageReaction.message.url})\n\n${desc}`)
-                .setTimestamp()
-                .setFooter({ text: 'Spy' });
+            typeof messageReaction.message.content === 'string' ? desc = messageReaction.message.content : desc = '';
 
             let files: AttachmentBuilder[] = [];
 
-            messageReaction.message.attachments.each(
-                attachment => {
-                    const file = new AttachmentBuilder(attachment.url);
-                    files.push(file);
-                }
-            );
+            messageReaction.message.attachments.each(attachment => {
+                const file = new AttachmentBuilder(attachment.url);
+                files.push(file);
+            });
 
             const message = await knex<starboardMessage>('starboardMessages')
                 .select('*')
@@ -56,7 +44,14 @@ export default async (spyBot: spyBot, messageReaction: MessageReaction) => {
             if (!message) {
                 const msg = await channel.send({
                     content: `${messageReaction.message.channel.url} | ${messageReaction.count} :star:`,
-                    embeds: [embed]
+                    embeds: [
+                        new EmbedBuilder()
+                            .setColor(16755763)
+                            .setAuthor({ name: (messageReaction.message.author as User).username, iconURL: (messageReaction.message.author as User).avatarURL() as string })
+                            .setDescription(`[**Jump to message**](${messageReaction.message.url})\n\n${desc}`)
+                            .setTimestamp()
+                            .setFooter({ text: 'Spy' })
+                    ]
                 });
                 const reactSetting = await knex<settingInfo>('starboardReactToOwnMsgs')
                     .select('*')
@@ -65,13 +60,9 @@ export default async (spyBot: spyBot, messageReaction: MessageReaction) => {
                 let react = 0;
                 if (reactSetting) react = 1;
 
-                if (react === 1) {
-                    await msg.react('⭐');
-                }
+                if (react === 1) await msg.react('⭐');
 
-                if (files.length !== 0) {
-                    await channel.send({ files: files });
-                }
+                if (files.length !== 0) await channel.send({ files: files });
 
                 await knex<starboardMessage>('starboardMessages')
                     .insert({
@@ -100,5 +91,4 @@ export default async (spyBot: spyBot, messageReaction: MessageReaction) => {
     } catch (error) {
         console.error(error);
     }
-    return;
 }

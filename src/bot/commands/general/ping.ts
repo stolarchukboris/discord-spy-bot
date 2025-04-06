@@ -1,7 +1,6 @@
 import { botCommand } from "../../../types/global.js";
 import { spyBot } from "../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors } from 'discord.js';
-import logos from '../../../misc/logos.js';
 
 export default class pingCommand implements botCommand {
     name: Lowercase<string> = "ping";
@@ -16,14 +15,13 @@ export default class pingCommand implements botCommand {
         await interaction.editReply({
             embeds: [
                 new EmbedBuilder()
-                    .setColor(Colors.Green)
+                    .setColor(Colors.Fuchsia)
                     .setTitle(`Pong!`)
                     .setDescription(`Websocket heartbeat: ${interaction.client.ws.ping} ms.`)
-                    .setThumbnail(logos.heart)
+                    .setThumbnail(this.spyBot.logos.heart)
                     .setTimestamp()
                     .setFooter({ text: 'Spy' })
             ]
         });
-        return;
     }
 }

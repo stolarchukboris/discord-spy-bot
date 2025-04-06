@@ -12,13 +12,13 @@ export default class userCommand implements botCommand {
             .setDescription('User to fetch. Ignore to get info on yourself.')
     ];
 
-    constructor (spyBot: spyBot) {
+    constructor(spyBot: spyBot) {
         this.spyBot = spyBot;
     }
 
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
         const opt = interaction.options.getUser('user') ?? interaction.user;
-        const joined = interaction.member.joinedTimestamp ?? 0;
+        const joined = interaction.member.joinedTimestamp;
 
         await interaction.editReply({
             embeds: [
@@ -28,14 +28,13 @@ export default class userCommand implements botCommand {
                     .setDescription(`Get information about ${opt}.`)
                     .setThumbnail(`${opt.avatarURL()}`)
                     .addFields(
-                        { name: 'Username:', value: `${opt.username}`, inline: true },
-                        { name: 'Join date:', value: `<t:${Math.floor(joined / 1000)}:f>`, inline: true },
-                        { name: 'ID:', value: `${opt.id}`, inline: true }
+                        { name: 'Username', value: opt.username, inline: true },
+                        { name: 'Join date', value: joined ? `<t:${Math.floor(joined / 1000)}:f>` : 'Unknown.', inline: true },
+                        { name: 'ID', value: opt.id, inline: true }
                     )
                     .setTimestamp()
                     .setFooter({ text: 'Spy' })
             ]
-        })
-        return;
+        });
     }
 }

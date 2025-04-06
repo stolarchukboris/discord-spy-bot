@@ -161,7 +161,7 @@ export default class Bot extends Client {
 
                 events.push({
                     name: eventFile.replace(/\.[^/.]+$/, ""),
-                    function: eventFunction.bind(null, this.spyBot)
+                    function: eventFunction
                 });
             }
             return events;

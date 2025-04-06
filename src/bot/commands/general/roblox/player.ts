@@ -2,7 +2,6 @@ import { botCommand } from "../../../../types/global.js";
 import { spyBot } from "../../../../index.js";
 import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption, ColorResolvable } from 'discord.js';
 import axios from 'axios';
-import { sendError } from "../../../../misc/function.js";
 
 export default class robloxCommand implements botCommand {
     name: Lowercase<string> = "player";
@@ -13,7 +12,7 @@ export default class robloxCommand implements botCommand {
             .setName('username')
             .setDescription('Player\'s username.')
             .setRequired(true)
-    ]
+    ];
 
     constructor(spyBot: spyBot) {
         this.spyBot = spyBot;
@@ -23,29 +22,30 @@ export default class robloxCommand implements botCommand {
         const key = this.spyBot.env.OPEN_CLOUD_API_KEY;
         const uname = interaction.options.getString('username', true);
         const responseId = await axios.post('https://users.roblox.com/v1/usernames/users', {
-            "usernames": [
-                `${uname}`
-            ],
+            "usernames": [uname],
             "excludeBannedUsers": true
         });
 
         if (responseId.data.data.length === 0 || !responseId) {
-            await sendError(interaction, { errorMessage: 'No users have been found or the user is banned.' });
+            await this.spyBot.sendEmbed(interaction, {
+                type: 'notFound',
+                message: 'No users have been found or the user is banned.'
+            });
             return;
-        };
+        }
 
         const userid = parseInt(responseId.data.data[0].id);
-        const responsePresence = await axios.post('https://presence.roblox.com/v1/presence/users', {
-            "userIds": [
-                userid
-            ]
-        });
+        const responsePresence = await axios.post('https://presence.roblox.com/v1/presence/users', { "userIds": [userid] });
         
         let responseUser;
+
         try {
             responseUser = await axios.get(`https://apis.roblox.com/cloud/v2/users/${userid}`, { headers: { 'x-api-key': key } });
         } catch (error) {
-            await sendError(interaction, { errorMessage: 'No users have been found or the user is banned.' });
+            await this.spyBot.sendEmbed(interaction, {
+                type: 'notFound',
+                message: 'No users have been found or the user is banned.'
+            });
             return;
         }
         
@@ -88,6 +88,5 @@ export default class robloxCommand implements botCommand {
                     .setFooter({ text: 'Spy' })
             ]
         });
-        return;
     }
 }

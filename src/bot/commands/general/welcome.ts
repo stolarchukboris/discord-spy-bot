@@ -30,6 +30,5 @@ Most importantly, please see all of the Spy's settings using the </settings view
 Have a great time using Spy!`)
             ]
         });
-        return;
     }
 }

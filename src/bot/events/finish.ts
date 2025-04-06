@@ -6,5 +6,4 @@ export default async (queue: Queue) => {
     } catch (error) {
         console.error(error);
     }
-    return;
 }

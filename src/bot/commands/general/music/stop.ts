@@ -1,7 +1,6 @@
 import { botCommand } from "../../../../types/global.js";
 import { spyBot } from "../../../../index.js";
-import { ChatInputCommandInteraction, EmbedBuilder, Colors } from 'discord.js';
-import logos from '../../../../misc/logos.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 
 export default class musicCommand implements botCommand {
     name: Lowercase<string> = "stop";
@@ -14,20 +13,9 @@ export default class musicCommand implements botCommand {
     }
 
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
-        const song = await this.spyBot.bot.distube.stop(interaction.guild);
-
-        await interaction.editReply({
-            embeds: [
-                new EmbedBuilder()
-                    .setColor(Colors.Green)
-                    .setTitle('Success.')
-                    .setDescription(`Stopped the music playback.`)
-                    .setThumbnail(logos.checkmark)
-                    .setTimestamp()
-                    .setFooter({ text: 'Spy Music' })
-            ]
-        })
-
-        return;
+        await this.spyBot.sendEmbed(interaction, {
+            type: 'success',
+            message: 'Successfully stopped playing.'
+        });
     }
 }

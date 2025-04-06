@@ -1,7 +1,7 @@
 import { Guild, Invite, EmbedBuilder, User, Colors, TextChannel } from "discord.js";
-import { spyBot } from "../../index.js";
+import spyBot from "../../index.js";
 
-export default async (spyBot: spyBot, invite: Invite) => {
+export default async (invite: Invite) => {
     try {
         const knex = spyBot.knex;
         const setting = await knex<settingInfo>('serverLogsChannelSetting')
@@ -16,21 +16,22 @@ export default async (spyBot: spyBot, invite: Invite) => {
         inviteExp = Math.round(invite.expiresTimestamp as number / 1000);
 
         if (inviteExp > Math.round(invite.createdTimestamp as number / 1000)) { inviteExp = `<t:${inviteExp}:f>`; }
-        else { inviteExp = `Doesn't expire` };
+        else { inviteExp = `Doesn't expire.` };
 
-        const embed = new EmbedBuilder()
-            .setColor(Colors.LuminousVividPink)
-            .setTitle(`A new invite link has been generated!`)
-            .setDescription(`Inviter: <@${(invite.inviter as User).id}>\nCreated: <t:${Math.round(invite.createdTimestamp as number / 1000)}:f>\nExpires: ${inviteExp}\nInvite code: ${invite.code}\nInvite link: ${invite.url}`)
-            .setTimestamp()
-            .setFooter({ text: `Spy Moderation` });
-
-        const channel: TextChannel = (invite.guild as Guild).channels.cache.get(logsChannelId) as TextChannel;
+        const channel = (invite.guild as Guild).channels.cache.get(logsChannelId) as TextChannel;
         if (!channel.isTextBased()) return;
 
-        await channel.send({ embeds: [embed] });
+        await channel.send({
+            embeds: [
+                new EmbedBuilder()
+                    .setColor(Colors.LuminousVividPink)
+                    .setTitle(`A new invite link has been generated.`)
+                    .setDescription(`Inviter: ${invite.inviter as User}\nCreated: <t:${Math.round(invite.createdTimestamp as number / 1000)}:f>\nExpires: ${inviteExp}\nInvite code: ${invite.code}\nInvite link: ${invite.url}`)
+                    .setTimestamp()
+                    .setFooter({ text: `Spy Moderation` })
+            ]
+        });
     } catch (error) {
         console.error(error);
     }
-    return;
 }

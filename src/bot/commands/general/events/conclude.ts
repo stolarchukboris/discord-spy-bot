@@ -1,7 +1,6 @@
 import { spyBot } from "../../../../index.js";
-import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandStringOption, TextChannel } from "discord.js";
 import { botCommand } from "../../../../types/global.js";
-import logos from '../../../../misc/logos.js';
 
 export default class eventsCommand implements botCommand {
     name: Lowercase<string> = "conclude";
@@ -54,17 +53,9 @@ export default class eventsCommand implements botCommand {
             ]
         });
 
-        await interaction.editReply({
-            embeds: [
-                new EmbedBuilder()
-                    .setColor(Colors.Green)
-                    .setTitle('Success.')
-                    .setDescription('The scheduled event has been concluded successfully.')
-                    .setThumbnail(logos.checkmark)
-                    .setTimestamp()
-                    .setFooter({ text: 'Spy' })
-            ]
+        await this.spyBot.sendEmbed(interaction, {
+            type: 'success',
+            message: 'Successfully concluded the scheduled event.'
         });
-        return;
     }
 }

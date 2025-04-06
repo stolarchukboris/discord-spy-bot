@@ -1,8 +1,6 @@
 import { botCommand } from "../../../../types/global.js";
 import { spyBot } from "../../../../index.js";
-import { ChatInputCommandInteraction, EmbedBuilder, Colors, SlashCommandStringOption } from 'discord.js';
-import { sendError } from "../../../../misc/function.js";
-import logos from '../../../../misc/logos.js';
+import { ChatInputCommandInteraction, SlashCommandStringOption } from 'discord.js';
 import settingsEnum from "../../../../misc/settingsEnum.js";
 
 export default class settingsCommand implements botCommand {
@@ -31,7 +29,10 @@ export default class settingsCommand implements botCommand {
         const settingValue = interaction.options.getString('value', true);
 
         if (isNaN(Number(settingValue)) || settingValue.split('.')[1]) {
-            await sendError(interaction, { errorMessage: 'Setting value can only be a number with no decimal places.' });
+            await this.spyBot.sendEmbed(interaction, {
+                type: 'warning',
+                message: 'Setting value can only be an integer.'
+            });
             return;
         }
         
@@ -40,17 +41,9 @@ export default class settingsCommand implements botCommand {
             [interaction.guild.id, settingValue, settingValue]
         );
 
-        await interaction.followUp({
-            embeds: [
-                new EmbedBuilder()
-                    .setColor(Colors.Green)
-                    .setTitle('Success.')
-                    .setDescription(`Setting \`${setting}\` has been successfully set to \`${settingValue}\`.`)
-                    .setThumbnail(logos.checkmark)
-                    .setTimestamp()
-                    .setFooter({ text: 'Spy Configuration' })
-            ]
+        await this.spyBot.sendEmbed(interaction, {
+            type: 'success',
+            message: `Setting \`${setting}\` has been successfully set to \`${settingValue}\`.`
         });
-        return;
     }
 }

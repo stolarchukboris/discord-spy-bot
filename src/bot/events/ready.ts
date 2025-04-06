@@ -1,8 +1,8 @@
-import { spyBot, botState } from '../../index.js';
-import { ActivityType, Client, Guild } from 'discord.js';
-import { eventReminder } from '../../misc/function.js';
+import spyBot, { botState } from '../../index.js';
+import { ActivityType, Guild } from 'discord.js';
+import eventReminder from '../../misc/worker.js';
 
-export default async (spyBot: spyBot, client: Client) => {
+export default async () => {
     console.log('Spy Bot Ready!');
     spyBot.state = botState.ON;
 
@@ -24,7 +24,7 @@ export default async (spyBot: spyBot, client: Client) => {
     }
 
     while (true) {
-        await eventReminder(spyBot);
+        await eventReminder();
 
         await new Promise(resolve => setTimeout(resolve, 1_000));
     }
