@@ -16,10 +16,10 @@ importers:
         version: 0.18.0(@discordjs/opus@0.10.0)
       '@distube/soundcloud':
         specifier: ^2.0.4
-        version: 2.0.4(distube@5.0.6(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0))
+        version: 2.0.4(distube@5.0.7(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0))
       '@distube/youtube':
         specifier: ^1.0.4
-        version: 1.0.4(distube@5.0.6(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0))
+        version: 1.0.4(distube@5.0.7(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0))
       '@types/moment-duration-format':
         specifier: ^2.2.6
         version: 2.2.6
@@ -30,8 +30,8 @@ importers:
         specifier: ^14.18.0
         version: 14.18.0
       distube:
-        specifier: ^5.0.6
-        version: 5.0.6(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0)
+        specifier: ^5.0.7
+        version: 5.0.7(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0)
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
@@ -250,10 +250,9 @@ packages:
     resolution: {integrity: sha512-SvU5kVUvwunQhN2/+0t55QW/1EHfB1lp0TtLZUSXVHDmyHTrdOj5LRKdR0zLcybaA15F+NtdWuWmGOX9lE+CAw==}
     engines: {node: '>=18'}
 
-  distube@5.0.6:
-    resolution: {integrity: sha512-eXcg76SQ+1BWcs/rXMFlU9mj8OAtPSKLrJvBzbWUFNasfr5rb5/T/SckKy8lnnDQzcADxafHEtBm+73EfQ4JDw==}
+  distube@5.0.7:
+    resolution: {integrity: sha512-EyxXH2q+SGIgdtKgDPaGvQe9Tyce7nMfps6FV1mt6EUDQg1ld1I2NrLsugCUHaelDpG7zG950dFvv6xryRnMuA==}
     engines: {node: '>=18.17'}
-    deprecated: This version is deprecated, please upgrade to the latest version.
     peerDependencies:
       '@discordjs/voice': '*'
       discord.js: '14'
@@ -701,6 +700,10 @@ packages:
     resolution: {integrity: sha512-Qy96NND4Dou5jKoSJ2gm8ax8AJM/Ey9o9mz7KN1bb9GP+G0l20Zw8afxTnY2f4b7hmhn/z8aC2kfArVQlAhFBw==}
     engines: {node: '>=20.18.1'}
 
+  undici@7.8.0:
+    resolution: {integrity: sha512-vFv1GA99b7eKO1HG/4RPu2Is3FBTWBrmzqzO0mz+rLxN3yXkE4mqRcb8g8fHxzX4blEysrNZLqg5RbJLqX5buA==}
+    engines: {node: '>=20.18.1'}
+
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -818,17 +821,17 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@distube/soundcloud@2.0.4(distube@5.0.6(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0))':
+  '@distube/soundcloud@2.0.4(distube@5.0.7(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0))':
     dependencies:
-      distube: 5.0.6(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0)
+      distube: 5.0.7(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0)
       soundcloud.ts: 0.6.3
 
-  '@distube/youtube@1.0.4(distube@5.0.6(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0))':
+  '@distube/youtube@1.0.4(distube@5.0.7(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0))':
     dependencies:
       '@distube/ytdl-core': 4.16.4
       '@distube/ytpl': 1.2.1
       '@distube/ytsr': 2.0.4
-      distube: 5.0.6(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0)
+      distube: 5.0.7(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -972,12 +975,12 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  distube@5.0.6(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0):
+  distube@5.0.7(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.18.0):
     dependencies:
       '@discordjs/voice': 0.18.0(@discordjs/opus@0.10.0)
       discord.js: 14.18.0
       tiny-typed-emitter: 2.1.0
-      undici: 6.21.1
+      undici: 7.8.0
 
   dotenv@16.5.0: {}
 
@@ -1356,6 +1359,8 @@ snapshots:
   undici@6.21.1: {}
 
   undici@7.3.0: {}
+
+  undici@7.8.0: {}
 
   util-deprecate@1.0.2: {}
 
