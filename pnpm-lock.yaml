@@ -37,7 +37,7 @@ importers:
         version: 16.5.0
       knex:
         specifier: ^3.1.0
-        version: 3.1.0(mysql2@3.14.0)
+        version: 3.1.0(mysql2@3.14.1)
       moment:
         specifier: ^2.30.1
         version: 2.30.1
@@ -45,8 +45,8 @@ importers:
         specifier: ^2.3.2
         version: 2.3.2
       mysql2:
-        specifier: ^3.14.0
-        version: 3.14.0
+        specifier: ^3.14.1
+        version: 3.14.1
 
 packages:
 
@@ -451,8 +451,8 @@ packages:
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
-  long@5.3.1:
-    resolution: {integrity: sha512-ka87Jz3gcx/I7Hal94xaN2tZEOPoUOEVftkQqZx2EeQRN7LGdfLlI3FvZ+7WDplm+vK2Urx9ULrvSowtdCieng==}
+  long@5.3.2:
+    resolution: {integrity: sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==}
 
   lru-cache@7.18.3:
     resolution: {integrity: sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==}
@@ -521,8 +521,8 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  mysql2@3.14.0:
-    resolution: {integrity: sha512-8eMhmG6gt/hRkU1G+8KlGOdQi2w+CgtNoD1ksXZq9gQfkfDsX4LHaBwTe1SY0Imx//t2iZA03DFnyYKPinxSRw==}
+  mysql2@3.14.1:
+    resolution: {integrity: sha512-7ytuPQJjQB8TNAYX/H2yhL+iQOnIBjAMam361R7UAL0lOVXWjtdrmoL9HYKqKoLp/8UUTRcvo1QPvK9KL7wA8w==}
     engines: {node: '>= 8.0'}
 
   named-placeholders@1.1.3:
@@ -1156,7 +1156,7 @@ snapshots:
 
   is-property@1.0.2: {}
 
-  knex@3.1.0(mysql2@3.14.0):
+  knex@3.1.0(mysql2@3.14.1):
     dependencies:
       colorette: 2.0.19
       commander: 10.0.1
@@ -1173,7 +1173,7 @@ snapshots:
       tarn: 3.0.2
       tildify: 2.0.0
     optionalDependencies:
-      mysql2: 3.14.0
+      mysql2: 3.14.1
     transitivePeerDependencies:
       - supports-color
 
@@ -1181,7 +1181,7 @@ snapshots:
 
   lodash@4.17.21: {}
 
-  long@5.3.1: {}
+  long@5.3.2: {}
 
   lru-cache@7.18.3: {}
 
@@ -1233,13 +1233,13 @@ snapshots:
 
   ms@2.1.3: {}
 
-  mysql2@3.14.0:
+  mysql2@3.14.1:
     dependencies:
       aws-ssl-profiles: 1.1.2
       denque: 2.1.0
       generate-function: 2.3.1
       iconv-lite: 0.6.3
-      long: 5.3.1
+      long: 5.3.2
       lru.min: 1.1.2
       named-placeholders: 1.1.3
       seq-queue: 0.0.5
