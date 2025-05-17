@@ -1,6 +1,6 @@
 import { readdir, lstat } from "fs/promises";
 import { spyBot } from '../index.js';
-import { Client, Collection, IntentsBitField, REST, RESTPostAPIApplicationCommandsJSONBody, Routes, SlashCommandBuilder, SlashCommandSubcommandBuilder } from "discord.js";
+import { Partials, Client, Collection, IntentsBitField, REST, RESTPostAPIApplicationCommandsJSONBody, Routes, SlashCommandBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { config } from 'dotenv';
 import { botCommand, botEvent } from '../types/global.js';
 import DisTube from "distube";
@@ -33,7 +33,8 @@ export default class Bot extends Client {
                 IntentsBitField.Flags.GuildMessageReactions,
                 IntentsBitField.Flags.DirectMessages,
                 IntentsBitField.Flags.GuildVoiceStates
-            ]
+            ],
+            partials: [Partials.Reaction, Partials.Message]
         });
 
         this.spyBot = spyBot;
@@ -63,7 +64,7 @@ export default class Bot extends Client {
 
                 for (const commandFile of commandFiles) {
                     const commandFileStat = await lstat(`${__dirname}/commands/${categoryDir}/${commandFile}`);
-                    const commandClass = (await import(`./commands/${categoryDir}/${commandFile}${commandFileStat.isDirectory() && '/index.js' || ''}`)).default;
+                    const commandClass = (await import(`./commands/${categoryDir}/${commandFile}${commandFileStat.isDirectory() ? '/index.js' : ''}`)).default;
                     const commandData: botCommand = new commandClass(this.spyBot);
 
                     if (commandFileStat.isDirectory()) {

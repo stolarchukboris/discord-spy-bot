@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "build": "rmdir build /s /q && tsc",
-    "coldstart": "pnpm run build && pm2 start build/src/index.js -f",
-    "start": "pm2 start build/src/index.js -f",
+    "coldstart": "pnpm run build && pm2 start build/src/index.js -f && pm2 logs",
+    "start": "pm2 start build/src/index.js -f && pm2 logs",
     "stop": "pm2 delete build/src/index.js",
-    "rebuild": "pnpm run build && pm2 restart build/src/index.js --update-env"
+    "rebuild": "pnpm run build && pm2 restart build/src/index.js --update-env && pm2 logs"
   },
   "author": "stolarchukboris",
   "license": "MIT",
@@ -18,10 +18,12 @@
     "@discordjs/voice": "^0.18.0",
     "@distube/soundcloud": "^2.0.4",
     "@distube/youtube": "^1.0.4",
+    "@napi-rs/canvas": "^0.1.70",
     "@types/moment-duration-format": "^2.2.6",
     "axios": "^1.9.0",
     "discord.js": "^14.19.3",
     "distube": "^5.0.7",
+    "djs-cv2-embed-builder": "1.0.1-c",
     "dotenv": "^16.5.0",
     "knex": "^3.1.0",
     "moment": "^2.30.1",

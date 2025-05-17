@@ -3,6 +3,8 @@ import spyBot from "../../index.js";
 
 export default async (message: Message) => {
     try {
+        if (message.partial) message.fetch();
+
         const knex = spyBot.knex;
         const setting = await knex<settingInfo>('serverLogsChannelSetting')
             .select('*')
@@ -15,14 +17,10 @@ export default async (message: Message) => {
 
         let files: AttachmentBuilder[] = [];
 
-        try {
-            message.attachments.each(attachment => {
-                const file = new AttachmentBuilder(attachment.url);
-                files.push(file);
-            });
-        } catch (error) {
-            console.error(error);
-        }
+        message.attachments.each(attachment => {
+            const file = new AttachmentBuilder(attachment.url);
+            files.push(file);
+        });
 
         const channel: TextChannel = (message.guild as Guild).channels.cache.get(logsChannelId) as TextChannel;
         if (!channel.isTextBased()) return;
@@ -42,5 +40,4 @@ export default async (message: Message) => {
     } catch (error) {
         console.error(error);
     }
-    return;
 }

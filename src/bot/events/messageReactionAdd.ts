@@ -3,6 +3,12 @@ import spyBot from "../../index.js";
 
 export default async (messageReaction: MessageReaction) => {
     try {
+        if (messageReaction.partial) {
+            await messageReaction.fetch();
+
+            if (messageReaction.message.partial) await messageReaction.message.fetch();
+        }
+
         const knex = spyBot.knex;
         const channelSetting = await knex<settingInfo>('starboardChannelSetting')
             .select('*')
