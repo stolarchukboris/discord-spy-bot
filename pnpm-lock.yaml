@@ -35,9 +35,6 @@ importers:
       distube:
         specifier: ^5.0.7
         version: 5.0.7(@discordjs/voice@0.18.0(@discordjs/opus@0.10.0))(discord.js@14.19.3)
-      djs-cv2-embed-builder:
-        specifier: 1.0.1-c
-        version: 1.0.1-c
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
@@ -328,9 +325,6 @@ packages:
     peerDependencies:
       '@discordjs/voice': '*'
       discord.js: '14'
-
-  djs-cv2-embed-builder@1.0.1-c:
-    resolution: {integrity: sha512-v+6U2oDV4GzZ2cZRsb+6jJA+hiW8P47F5MidJ3NQhsaAajToDW7+oLLNXeiLNRzO/4L5hPzFK8fwAkO03CjTVQ==}
 
   dotenv@16.5.0:
     resolution: {integrity: sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==}
@@ -1102,14 +1096,6 @@ snapshots:
       discord.js: 14.19.3
       tiny-typed-emitter: 2.1.0
       undici: 7.9.0
-
-  djs-cv2-embed-builder@1.0.1-c:
-    dependencies:
-      '@types/node': 22.15.18
-      discord.js: 14.19.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
 
   dotenv@16.5.0: {}
 
