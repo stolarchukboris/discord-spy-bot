@@ -15,7 +15,7 @@ export default class canvasCommand implements botCommand {
     async execute(interaction: ChatInputCommandInteraction<"cached">): Promise<void> {
         // Create a 700x250 pixel canvas and get its context
         // The context will be used to modify the canvas
-        const canvas = Canvas.createCanvas(250, 250);
+        const canvas = Canvas.createCanvas(700, 250);
         const context = canvas.getContext('2d');
         const background = await Canvas.loadImage('static\\background.jpg');
         const avatar = await Canvas.loadImage(interaction.user.avatarURL() as string);
@@ -25,7 +25,7 @@ export default class canvasCommand implements botCommand {
         context.drawImage(avatar, 20, 20, 200, 200);
 
         // Use the helpful Attachment class structure to process the file for you
-        const thing = new AttachmentBuilder(Buffer.from('static\\background.jpg'), { name: 'yourimage.png' });
+        const thing = new AttachmentBuilder(await canvas.encode('png'), { name: 'yourimage.png' });
         
         await interaction.editReply({
             embeds: [
@@ -33,7 +33,8 @@ export default class canvasCommand implements botCommand {
                     .setTitle('You.')
                     .setDescription('This is you')
                     .setImage('attachment://yourimage.png')
-            ]
+            ],
+            files: [thing]
         });
     }
 }
